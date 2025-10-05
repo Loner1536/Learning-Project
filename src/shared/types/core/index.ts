@@ -45,7 +45,7 @@ export namespace Wave {
 		routeIndex: number;
 		boss?: boolean;
 	};
-	export type activeSpawn = {
+	export type ActiveSpawn = {
 		spawnConfig: Map.WaveSpawn;
 		timer: number;
 		remaining: number;

@@ -5,73 +5,27 @@ import { Name } from "@rbxts/jecs";
 // Types
 import * as Types from "@shared/types";
 
+// Components
+import Vectors from "./vectors";
+import Systems from "./systems";
+import Attack from "./attack";
+import Tower from "./tower";
+import Enemy from "./enemy";
+import Debug from "./debug";
+import Tags from "./tags";
+
 export default class Components {
 	constructor(private sim: Types.Core.API) {}
 
-	// --- Tags ---
-	public Tags = {
-		Enemy: this.defineTag("Enemy"),
-		Tower: this.defineTag("Tower"),
-		Boss: this.defineTag("Boss"),
+	public Tags = Tags((name) => this.defineTag(name));
 
-		Predicted: this.defineTag("Predicated"),
-		Completed: this.defineTag("Completed"),
-		Dead: this.defineTag("Dead"),
-	} as const;
+	public Vectors = Vectors((name) => this.defineComponent(name));
+	public Systems = Systems((name) => this.defineComponent(name));
+	public Attack = Attack((name) => this.defineComponent(name));
+	public Enemy = Enemy((name) => this.defineComponent(name));
+	public Tower = Tower((name) => this.defineComponent(name));
 
-	public Vectors = {
-		Orientation: this.defineComponent<Vector3>("Orientation"),
-		MoveDir: this.defineComponent<Vector2>("MoveDir"),
-		World: this.defineComponent<Vector3>("WorldPos"),
-		Grid: this.defineComponent<Vector2>("GridPos"),
-	} as const;
-
-	public Debug = {
-		Visual: this.defineComponent<BasePart>("DebugVisual"),
-	} as const;
-
-	public Enemy = {
-		Id: this.defineComponent<string>("EnemyId"),
-
-		KillCreditOwnerId: this.defineComponent<string>("KillCreditOwnerId"),
-		RouteIndex: this.defineComponent<number>("RouteIndex"),
-
-		PredictedHealth: this.defineComponent<number>("PredicatedHealth"),
-		MaxHealth: this.defineComponent<number>("MaxHealth"),
-		Health: this.defineComponent<number>("Health"),
-		Speed: this.defineComponent<number>("Speed"),
-
-		ShieldMultiplier: this.defineComponent<number>("ShieldMultiplier"),
-		MaxShield: this.defineComponent<number>("MaxShield"),
-		Shield: this.defineComponent<number>("Shield"),
-
-		Bounty: this.defineComponent<number>("Bounty"),
-
-		PathProgress: this.defineComponent<{ node: number; progress: number }>("PathProgress"),
-		PathIndex: this.defineComponent<number>("PathIndex"),
-	} as const;
-
-	public Stats = {
-		LeakDamage: this.defineComponent<number>("LeakDamage"),
-	};
-	
-	public Tower = {
-		Id: this.defineComponent<string>("TowerId"),
-
-		Class: this.defineComponent<Types.Core.Tower.Class>("Class"),
-		PlacementTime: this.defineComponent<number>("PlacementTime"),
-		OwnerId: this.defineComponent<string>("OwnerId"),
-	} as const;
-
-	public Attack = {
-		TargetMode: this.defineComponent<Types.Core.Attack.TargetMode>("TargetMode"),
-		Cooldown: this.defineComponent<Types.Core.Attack.Cooldown>("Cooldown"),
-		Damage: this.defineComponent<number>("Damage"),
-		Range: this.defineComponent<number>("Range"),
-
-		Profile: this.defineComponent<Types.Core.Attack.Profile>("AttackProfile"),
-		Event: this.defineComponent<Types.Core.Attack.Event>("AttackEvent"),
-	} as const;
+	public Debug = Debug((name) => this.defineComponent(name));
 
 	// --- Helpers ---
 	private defineComponent<T>(name: string) {

@@ -52,8 +52,8 @@ function start(sim: Types.Core.API) {
 
 	start_jabby(sim);
 
-	const events = sim.U.Scheduler.collectSystems();
-	sim.U.Scheduler.initialize(events);
+	const events = sim.U.Scheduler.CollectSystems();
+	sim.U.Scheduler.Initialize(events);
 }
 
 export default start;

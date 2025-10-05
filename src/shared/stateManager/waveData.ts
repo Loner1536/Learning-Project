@@ -29,7 +29,7 @@ export default class WaveData {
 			hpStocks: useAtom(() => this.state().hpStocks ?? 0),
 			vote: useAtom(() => this.state().vote ?? false),
 			votes: useAtom(() => this.state().votes ?? 0),
-			speed: useAtom(() => this.state().speed ?? 1),
+			gameSpeed: useAtom(() => this.state().gameSpeed ?? 1),
 			wave: useAtom(() => this.state().wave ?? 0),
 			act: useAtom(() => this.state().act ?? 0),
 

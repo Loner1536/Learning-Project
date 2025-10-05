@@ -5,7 +5,7 @@ import { Name, Entity } from "@rbxts/jecs";
 import type * as Types from "@shared/types";
 
 export default class EntityNamer {
-	constructor(public sim: Types.Core.API) {}
+	constructor(private sim: Types.Core.API) {}
 
 	public addNames(entities: Record<string, Entity<unknown>>): Record<string, Entity<unknown>> {
 		for (const [name, entity] of pairs(entities)) {

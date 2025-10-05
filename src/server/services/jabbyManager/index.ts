@@ -5,11 +5,9 @@ import { Service, OnInit } from "@flamework/core";
 import getSim from "@shared/ecs";
 
 @Service()
-export class JabbyService implements OnInit {
+export default class JabbyService implements OnInit {
 	public onInit() {
 		const sim = getSim();
-		sim.P.init("gameplay");
+		sim.P.Init("gameplay");
 	}
 }
-
-export default JabbyService;

@@ -2,7 +2,7 @@
 import { RunService } from "@rbxts/services";
 
 // Packages
-import { world, type World } from "@rbxts/jecs";
+import { CachedQuery, Tag, world, type World } from "@rbxts/jecs";
 
 // Types
 import * as Types from "@shared/types";
@@ -22,6 +22,11 @@ export default class Core {
 	public world: World;
 	public grid: Grid;
 
+	public cachedQueries: {
+		systems: CachedQuery<[Tag]>;
+		enemies: CachedQuery<[Tag]>;
+	};
+
 	public P: JabbyProfiler;
 	public C: Components;
 	public U: Utility;
@@ -33,7 +38,7 @@ export default class Core {
 
 	private simTime = 0;
 
-	public debug = true;
+	public debug = false;
 
 	private initPlayerAdd() {
 		safePlayerAdded((player) => {
@@ -86,36 +91,30 @@ export default class Core {
 		this.grid = new Grid({ width: 16, height: 9, tileSize: 1 });
 
 		this.C = new Components(this);
+
+		this.cachedQueries = {
+			systems: this.world.query(this.C.Tags.System).cached(),
+			enemies: this.world.query(this.C.Tags.Enemy).cached(),
+		};
+
 		this.P = new JabbyProfiler();
 		this.U = new Utility(this);
 		this.S = new Systems(this);
 
-		if (!RunService.IsRunning()) {
-			this.S.Wave.loadMap({
-				id: "SandVillage",
-				difficulty: "normal",
-				type: "story",
-			});
-			return;
-		}
-
-		this.initPlayerAdd();
-
-		this.U.Scheduler.system((...args) => {
+		this.U.Scheduler.System((...args) => {
 			const dt = args[0] as number;
 			return this.tick(dt);
 		});
+
+		this.initPlayerAdd();
 	}
 
 	public tick(dt: number) {
-		const effectiveDt = dt * math.clamp(this.S.Wave.gameSpeed, 0, 3);
-		this.simTime += effectiveDt;
+		for (const [systemEntity] of this.cachedQueries.systems.iter()) {
+			const gameSpeed = this.world.get(systemEntity, this.C.Systems.Wave.GameSpeed);
+		}
 
-		if (this.S.Wave.mission) {
-			this.P.run(this.S.Wave.spawnerId, () => this.S.Wave.tick(effectiveDt));
-		}
-		if (this.S.Wave.activeWave > 0) {
-			this.P.run(this.S.Enemy.moveId, () => this.S.Enemy.tick(effectiveDt));
-		}
+		// const effectiveDt = dt * math.clamp(this.S.Wave.gameSpeed, 0, 3);
+		// this.simTime += effectiveDt;
 	}
 }

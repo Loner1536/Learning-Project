@@ -18,7 +18,7 @@ export default class JabbyProfiler {
 	private metricsConn?: RBXScriptConnection;
 	private metricsAccum = 0;
 
-	public init(label: string) {
+	public Init(label: string) {
 		this.label = label;
 		if (this.initialized) return;
 		this.initialized = true;
@@ -39,7 +39,7 @@ export default class JabbyProfiler {
 	/**
 	 * Register a world once. Safe no-op if already registered or Jabby missing.
 	 */
-	public registerWorld(world: World) {
+	public RegisterWorld(world: World) {
 		if (this.worldRegistered) {
 			print("World already registered");
 			return;
@@ -55,7 +55,7 @@ export default class JabbyProfiler {
 	}
 
 	/** Ensure (and cache) a system id for the given name/phase pair. */
-	public ensureSystem(name: string, phase?: string): number | undefined {
+	public EnsureSystem(name: string, phase?: string): number | undefined {
 		if (!this.scheduler) return undefined;
 		const key = `${this.label}.${name}`;
 		const existing = this.systems.get(key);
@@ -73,28 +73,28 @@ export default class JabbyProfiler {
 	}
 
 	/** Run a profiled system function; falls back to direct execution if profiling unavailable. */
-	public run(id: number | undefined, fn: () => void) {
+	public Run(id: number | undefined, fn: () => void) {
 		if (!id || !this.scheduler) return fn();
 		const [ok] = pcall(() => this.scheduler!.run(id as SystemId, fn));
 		if (!ok) fn();
 	}
 
 	/** Convenience one-off wrapper that ensures the system then profiles the call. */
-	public profile(name: string, phase: string | undefined, fn: () => void) {
-		const id = this.ensureSystem(name, phase);
-		this.run(id, fn);
+	public Profile(name: string, phase: string | undefined, fn: () => void) {
+		const id = this.EnsureSystem(name, phase);
+		this.Run(id, fn);
 	}
 
 	/**
 	 * Start a tiny observer that periodically updates a scheduler system name with memory/instance counters.
 	 * Shows up in the Scheduler applet so you can spot leaks over time without a custom UI.
 	 */
-	public startMetricsObserver(intervalSec = 2, extra?: () => string): () => void {
+	public StartMetricsObserver(intervalSec = 2, extra?: () => string): () => void {
 		// Only once per VM
-		if (this.metricsConn) return () => this.stopMetricsObserver();
+		if (this.metricsConn) return () => this.StopMetricsObserver();
 		// Need a scheduler to surface in the applet
 		if (!this.scheduler) return () => {};
-		const id = this.ensureSystem("metrics", "diagnostic");
+		const id = this.EnsureSystem("metrics", "diagnostic");
 		if (!id) return () => {};
 		this.metricsAccum = 0;
 		this.metricsConn = RunService.Heartbeat.Connect((dt) => {
@@ -119,10 +119,10 @@ export default class JabbyProfiler {
 				}),
 			);
 		});
-		return () => this.stopMetricsObserver();
+		return () => this.StopMetricsObserver();
 	}
 
-	private stopMetricsObserver() {
+	private StopMetricsObserver() {
 		this.metricsConn?.Disconnect();
 		this.metricsConn = undefined;
 	}

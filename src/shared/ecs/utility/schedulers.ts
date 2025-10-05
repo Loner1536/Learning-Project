@@ -27,7 +27,7 @@ export default class Schedulers {
 
 	public stepPhases = {} as Record<string, Entity>;
 
-	constructor(public sim: Types.Core.API) {
+	constructor(private sim: Types.Core.API) {
 		this.dependsOnEntity = this.sim.world.entity();
 		this.hiddenEntity = this.sim.world.entity();
 		this.phaseEntity = this.sim.world.entity();
@@ -41,10 +41,10 @@ export default class Schedulers {
 		this.preRenderEntity = this.sim.world.entity();
 		this.heartbeatEntity = this.sim.world.entity();
 
-		this.setupPhases();
+		this.SetupPhases();
 	}
 
-	private setupPhases() {
+	private SetupPhases() {
 		const phaseMap: [Entity, RBXScriptSignal][] = [
 			[this.preRenderEntity, RunService.PreRender],
 			[this.heartbeatEntity, RunService.Heartbeat],
@@ -67,7 +67,7 @@ export default class Schedulers {
 		};
 	}
 
-	private run(...args: unknown[]) {
+	private Run(...args: unknown[]) {
 		if (this.currentSystem?.id !== undefined) {
 			this.instance.run(this.currentSystem.id, this.currentSystem.callback, ...args);
 		} else {
@@ -75,7 +75,7 @@ export default class Schedulers {
 		}
 	}
 
-	private connectEvent(event: unknown, callback: (...args: unknown[]) => void): RBXScriptConnection {
+	private ConnectEvent(event: unknown, callback: (...args: unknown[]) => void): RBXScriptConnection {
 		if (typeIs(event, "RBXScriptSignal")) {
 			return event.Connect(callback);
 		} else if (typeIs(event, "table") && "Connect" in event) {
@@ -91,7 +91,7 @@ export default class Schedulers {
 		}
 	}
 
-	public initialize(
+	public Initialize(
 		events: Types.Core.Utility.Scheduler.EventMap,
 		orderTable?: Types.Core.Utility.Scheduler.OrderedSystems,
 	): () => void {
@@ -128,12 +128,12 @@ export default class Schedulers {
 			if (!event) return;
 
 			const eventName = tostring(event);
-			const connection = this.connectEvent(event, (...args: unknown[]) => {
+			const connection = this.ConnectEvent(event, (...args: unknown[]) => {
 				debug.profilebegin(`JECS - ${eventName}`);
 				for (const system of systems) {
 					this.currentSystem = system;
 					debug.profilebegin(`JECS - ${system.name}`);
-					this.run(...args);
+					this.Run(...args);
 					debug.profileend();
 				}
 				debug.profileend();
@@ -146,7 +146,7 @@ export default class Schedulers {
 		};
 	}
 
-	private collectSystemsUnderEventRecursive(systems: Types.Core.Utility.Scheduler.Systems, phaseEntity: Entity) {
+	private CollectSystemsUnderEventRecursive(systems: Types.Core.Utility.Scheduler.Systems, phaseEntity: Entity) {
 		const depends = pair(this.dependsOnEntity, phaseEntity);
 		const phaseHidden = this.sim.world.has(phaseEntity, this.hiddenEntity);
 
@@ -170,25 +170,25 @@ export default class Schedulers {
 		}
 
 		for (const [afterEntity] of this.sim.world.query(this.phaseEntity).with(depends).iter()) {
-			this.collectSystemsUnderEventRecursive(systems, afterEntity);
+			this.CollectSystemsUnderEventRecursive(systems, afterEntity);
 		}
 	}
 
-	public collectSystemsUnderEvent(eventEntity: Entity): Types.Core.Utility.Scheduler.Systems {
+	public CollectSystemsUnderEvent(eventEntity: Entity): Types.Core.Utility.Scheduler.Systems {
 		const systems: Types.Core.Utility.Scheduler.Systems = [];
-		this.collectSystemsUnderEventRecursive(systems, eventEntity);
+		this.CollectSystemsUnderEventRecursive(systems, eventEntity);
 		return systems;
 	}
 
-	public collectSystems(): Types.Core.Utility.Scheduler.EventMap {
+	public CollectSystems(): Types.Core.Utility.Scheduler.EventMap {
 		const events = new Map<unknown, Types.Core.Utility.Scheduler.Systems>();
 		for (const [phaseEntity, eventEntity] of this.sim.world.query(this.eventEntity).with(this.phaseEntity).iter()) {
-			events.set(eventEntity, this.collectSystemsUnderEvent(phaseEntity));
+			events.set(eventEntity, this.CollectSystemsUnderEvent(phaseEntity));
 		}
 		return events;
 	}
 
-	public phase(event?: unknown, afterEntity?: Entity, hidden?: boolean): Entity {
+	public Phase(event?: unknown, afterEntity?: Entity, hidden?: boolean): Entity {
 		const phaseEntity = this.sim.world.entity();
 		this.sim.world.add(phaseEntity, this.phaseEntity);
 
@@ -202,7 +202,7 @@ export default class Schedulers {
 		return phaseEntity;
 	}
 
-	public system(
+	public System(
 		callback: (...args: unknown[]) => void,
 		phaseEntity?: Entity,
 		group?: string,

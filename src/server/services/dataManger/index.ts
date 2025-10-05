@@ -7,7 +7,7 @@ import { Service, OnInit } from "@flamework/core";
 import { NetworkData } from "@shared/network";
 
 // Utility
-import safePlayerAdded from "shared/utility/safePlayerAdded";
+import safePlayerAdded from "@shared/utility/safePlayerAdded";
 
 // Components
 import template from "./template";

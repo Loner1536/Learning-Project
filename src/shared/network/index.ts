@@ -21,7 +21,7 @@ export namespace NetworkData {
 				hpStocks: u8;
 				vote: boolean;
 				enemies: u16;
-				speed: u8;
+				gameSpeed: u8;
 				votes: u8;
 				wave: u8;
 				act: u8;

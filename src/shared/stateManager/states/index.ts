@@ -12,7 +12,7 @@ const states = {
 		vote: false,
 		enemies: 0,
 		votes: 0,
-		speed: 1,
+		gameSpeed: 1,
 		wave: 0,
 		act: 0,
 	}),

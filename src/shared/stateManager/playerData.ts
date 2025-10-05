@@ -62,7 +62,9 @@ export default class PlayerData {
 		id: string,
 		updater: (data: NetworkData.State.PlayerData.Default) => NetworkData.State.PlayerData.Default,
 	) {
-		if (RunService.IsClient()) return warn("[PlayerData] update should only be called on the server");
+		if (RunService.IsClient() && RunService.IsRunning()) {
+			return warn("[PlayerData] update should only be called on the server");
+		}
 
 		this.state((state) => {
 			const newState = Object.deepCopy(state);

@@ -5,12 +5,6 @@ import { Workspace } from "@rbxts/services";
 import type * as Types from "@shared/types";
 
 export default class Route {
-	private config: Types.Core.Route.BuilderConfig;
-
-	constructor(core: Types.Core.API, config: Types.Core.Route.BuilderConfig) {
-		this.config = config;
-	}
-
 	public buildRoutesFromWorld(): Types.Core.Route.Info[] {
 		const routes: Types.Core.Route.Info[] = [];
 
@@ -28,7 +22,7 @@ export default class Route {
 			const sortedModels = routeModels.sort((a, b) => {
 				const aNum = tonumber(a.Name) || 0;
 				const bNum = tonumber(b.Name) || 0;
-				return aNum < bNum; // true if a should come before b
+				return aNum < bNum;
 			});
 
 			const routePositions: Vector3[] = [];

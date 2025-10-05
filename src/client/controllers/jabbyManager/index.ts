@@ -9,14 +9,14 @@ import Jabby from "@rbxts/jabby";
 import getSim from "@shared/ecs";
 
 @Controller()
-export class JabbyController implements OnStart {
+export default class JabbyController implements OnStart {
 	private client: ReturnType<typeof Jabby.obtain_client>;
 	private bound = false;
 
 	constructor() {
 		const sim = getSim();
 
-		sim.P.init("gameplay");
+		sim.P.Init("gameplay");
 
 		this.client = Jabby.obtain_client();
 	}
@@ -41,5 +41,3 @@ export class JabbyController implements OnStart {
 		this.bound = false;
 	}
 }
-
-export default JabbyController;

@@ -7,7 +7,7 @@ import type * as Types from "@shared/types";
 export default class RefManager {
 	private refs = new Map<unknown, Entity>();
 
-	constructor(public sim: Types.Core.API) {}
+	constructor(private sim: Types.Core.API) {}
 
 	public ref(key?: unknown, initer?: (entity: Entity) => void): Entity {
 		if (key === undefined) {

@@ -6,7 +6,7 @@ import { Entity } from "@rbxts/jecs";
 import type * as Types from "@shared/types";
 
 export default class EntitySharer {
-	constructor(public sim: Types.Core.API) {}
+	constructor(private sim: Types.Core.API) {}
 
 	public addShared(entities: Record<string, Entity<unknown>>): Record<string, Entity<unknown>> {
 		for (const [, entity] of pairs(entities)) {
