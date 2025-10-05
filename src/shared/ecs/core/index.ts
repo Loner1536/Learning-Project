@@ -38,7 +38,7 @@ export default class Core {
 
 	private simTime = 0;
 
-	public debug = false;
+	public debug = true;
 
 	private initPlayerAdd() {
 		safePlayerAdded((player) => {

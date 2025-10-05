@@ -1,5 +1,5 @@
 // Services
-import { RunService, ServerStorage, Workspace } from "@rbxts/services";
+import { Players, RunService, ServerStorage, Workspace } from "@rbxts/services";
 
 // Types
 import type Components from "@shared/ecs/components";
@@ -19,95 +19,118 @@ export default class WaveSystem {
 		this.Entity = this.sim.world.entity();
 		this.sim.world.add(this.Entity, this.sim.C.Tags.System);
 
-		// this.sim.U.Scheduler.System((...args) => {
-		// 	const dt = args[0] as number;
+		this.sim.U.observer(
+			[
+				this.sim.C.Systems.Wave.ActiveWave,
+				this.sim.C.Systems.Wave.GameSpeed,
+				this.sim.C.Systems.Wave.HpStocks,
+				this.sim.C.Systems.Wave.Votes,
+				this.sim.C.Systems.Wave.Vote,
+			],
+			(_, id, value) => {
+				this.sim.StateManager.waveData.update((data) => ({
+					...data,
 
-		// 	this.sim.P.Run(this.sim.P.EnsureSystem("WaveSystem", "Update"), () => this.tick(dt));
-		// });
+					gameSpeed: id === this.sim.C.Systems.Wave.GameSpeed ? (value as number) : data.gameSpeed,
+					hpStocks: id === this.sim.C.Systems.Wave.HpStocks ? (value as number) : data.hpStocks,
+					votes: id === this.sim.C.Systems.Wave.Votes ? (value as string[]).size() : data.votes,
+					wave: id === this.sim.C.Systems.Wave.ActiveWave ? (value as number) : data.wave,
+					vote: id === this.sim.C.Systems.Wave.Vote ? (value as boolean) : data.vote,
+				}));
+			},
+		);
+
+		this.sim.U.Scheduler.System((...args) => {
+			const dt = args[0] as number;
+
+			this.sim.P.Run(this.sim.P.EnsureSystem("WaveSystem", "Update"), () => this.tick(dt));
+		});
+	}
+	public tick(dt: number) {
+		const activeSpawns = this.sim.world.get(this.Entity, this.sim.C.Systems.Wave.ActiveSpawns);
+		const enemies = this.sim.world.get(this.Entity, this.sim.C.Systems.Wave.Enemies);
+		const routes = this.sim.world.get(this.Entity, this.sim.C.Systems.Wave.Routes);
+		if (!activeSpawns || !routes || !enemies) return;
+
+		for (const batch of activeSpawns) {
+			batch.timer -= dt;
+			if (batch.timer <= 0 && batch.remaining > 0) {
+				const route = routes[batch.spawnConfig.routeIndex ?? 0];
+				if (!route) continue;
+
+				const startNode = route.path[0];
+				const enemyDef = enemies.find((e) => e.id === batch.spawnConfig.enemy);
+				if (!enemyDef) continue;
+
+				const e = this.sim.world.entity();
+				this.sim.world.add(e, this.sim.C.Tags.Enemy);
+				this.sim.world.set(e, this.sim.C.Enemy.MaxHealth, enemyDef.health);
+				this.sim.world.set(e, this.sim.C.Enemy.Health, enemyDef.health);
+				this.sim.world.set(e, this.sim.C.Enemy.Speed, enemyDef.speed);
+				this.sim.world.set(e, this.sim.C.Enemy.PathProgress, { node: 0, progress: 0 });
+				this.sim.world.set(e, this.sim.C.Vectors.Grid, new Vector2(startNode.X, startNode.Y));
+				this.sim.world.set(e, this.sim.C.Vectors.World, startNode);
+
+				this.sim.S.Enemy.updateSimpleOrientation(e, 0, route.path);
+
+				batch.timer = math.max(0, batch.spawnConfig.interval);
+				batch.remaining -= 1;
+
+				if (this.sim.debug) {
+					const debugFolder = Workspace.FindFirstChild("Debug") as Folder;
+
+					const debugBox = new Instance("Part");
+					debugBox.Name = `EnemyDebug-${e}`;
+					debugBox.Color = new Color3(1, 0, 0);
+					debugBox.Size = new Vector3(1, 1, 1);
+					debugBox.CanCollide = false;
+					debugBox.Anchored = true;
+
+					debugBox.Position = startNode;
+
+					debugBox.Parent = debugFolder;
+
+					this.sim.world.set(e, this.sim.C.Debug.Visual, debugBox);
+				}
+			}
+		}
 	}
 
-	// public tick(dt: number) {
-	// 	if (!this.activeSpawns || !this.routes) return;
+	private startMission() {
+		const mission = this.sim.world.get(this.Entity, this.sim.C.Systems.Wave.Mission);
+		const enemies = this.sim.world.get(this.Entity, this.sim.C.Systems.Wave.Enemies);
 
-	// 	for (const batch of this.activeSpawns) {
-	// 		batch.timer -= dt;
-	// 		if (batch.timer <= 0 && batch.remaining > 0) {
-	// 			const route = this.routes[batch.spawnConfig.routeIndex ?? 0];
-	// 			if (!route) continue;
+		if (!mission || !enemies) return;
 
-	// 			const startNode = route.path[0];
-	// 			const enemyDef = this.enemyDefs.find((e) => e.id === batch.spawnConfig.enemy);
-	// 			if (!enemyDef) continue;
+		this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.WaveActive, false);
+		this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.ActiveWave, 0);
+		this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.WaveTime, 0);
 
-	// 			print(`[WaveSystem] Spawning enemy "${enemyDef.id}" at route "${route.name}"`);
+		this.nextWave(mission);
+	}
+	private nextWave(mission: Types.Core.Map.Mission) {
+		if (!mission) return;
 
-	// 			const e = this.sim.world.entity();
-	// 			this.sim.world.add(e, this.sim.C.Tags.Enemy);
-	// 			this.sim.world.set(e, this.sim.C.Enemy.MaxHealth, enemyDef.health);
-	// 			this.sim.world.set(e, this.sim.C.Enemy.Health, enemyDef.health);
-	// 			this.sim.world.set(e, this.sim.C.Enemy.Speed, enemyDef.speed);
-	// 			this.sim.world.set(e, this.sim.C.Enemy.PathProgress, { node: 0, progress: 0 });
-	// 			this.sim.world.set(e, this.sim.C.Vectors.Grid, new Vector2(startNode.X, startNode.Y));
-	// 			this.sim.world.set(e, this.sim.C.Vectors.World, startNode);
+		const currentWave = this.sim.world.get(this.Entity, this.sim.C.Systems.Wave.ActiveWave);
+		if (currentWave === undefined) error("Failed to retrieve current wave index");
 
-	// 			// this.sim.S.Enemy.updateSimpleOrientation(e, 0, route.path);
+		const newWave = currentWave + 1;
+		if (!newWave) error("Failed to retrieve current wave index");
 
-	// 			batch.remaining -= 1;
-	// 			batch.timer = math.max(0, batch.spawnConfig.interval);
-	// 			this.enemiesAlive += 1;
+		const spawns = mission.waves[newWave - 1].spawns;
 
-	// 			if (this.sim.debug) {
-	// 				const debugFolder = Workspace.FindFirstChild("Debug") as Folder;
-
-	// 				const debugBox = new Instance("Part");
-	// 				debugBox.Name = `EnemyDebug-${e}`;
-	// 				debugBox.Color = new Color3(1, 0, 0);
-	// 				debugBox.Size = new Vector3(1, 1, 1);
-	// 				debugBox.CanCollide = false;
-	// 				debugBox.Anchored = true;
-
-	// 				debugBox.Position = startNode;
-
-	// 				debugBox.Parent = debugFolder;
-
-	// 				this.sim.world.set(e, this.sim.C.Debug.Visual, debugBox);
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	// public prepareWave(waveIndex: number) {
-	// 	const wave = this.mission?.waves[waveIndex];
-	// 	if (!wave) return;
-
-	// 	this.activeSpawns = wave.spawns.map((spawn) => ({
-	// 		spawnConfig: spawn,
-	// 		timer: spawn.at,
-	// 		remaining: spawn.count ?? 1,
-	// 	}));
-	// }
-	// public startMission() {
-	// 	if (!this.mission || this.enemyDefs) return;
-
-	// 	this.waveActive = false;
-	// 	this.enemiesAlive = 0;
-	// 	this.spawnCursor = 0;
-	// 	this.emissions = [];
-	// 	this.waveTime = 0;
-	// }
-	// public nextWave() {
-	// 	if (!this.mission) return;
-
-	// 	this.prepareWave(this.activeWave);
-
-	// 	this.sim.StateManager.waveData.update((data) => {
-	// 		this.activeWave += 1;
-	// 		data.wave += 1;
-	// 		print(`[WaveSystem] Starting wave ${this.activeWave}`);
-
-	// 		return data;
-	// 	});
-	// }
+		this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.ActiveWave, newWave);
+		this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.WaveActive, true);
+		this.sim.world.set(
+			this.Entity,
+			this.sim.C.Systems.Wave.ActiveSpawns,
+			spawns.map((spawn) => ({
+				spawnConfig: spawn,
+				timer: spawn.at,
+				remaining: spawn.count ?? 1,
+			})),
+		);
+	}
 
 	private loadRoute() {
 		const route = new Route();
@@ -168,33 +191,18 @@ export default class WaveSystem {
 		this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.Mission, mission);
 		this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.Enemies, mission.enemies);
 
-		task.delay(2, () => {
-			this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.HpStocks, hpStocks - 1);
-		});
+		this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.Vote, true);
+	}
+	public vote(player: Player) {
+		const Votes = this.sim.world.get(this.Entity, this.sim.C.Systems.Wave.Votes) || [];
+		if (Votes.find((userId) => userId === tostring(player.UserId))) return;
 
-		print(`[WaveSystem] Loaded map "${teleportData.id}" of type "${teleportData.type}"`);
+		Votes.push(tostring(player.UserId));
+		this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.Votes, Votes);
 
-		this.sim.U.observer(
-			[this.sim.C.Systems.Wave.HpStocks, this.sim.C.Systems.Wave.GameSpeed],
-			(entity, id, value) => {
-				this.sim.StateManager.waveData.update((data) => {
-					if (id === this.sim.C.Systems.Wave.HpStocks) {
-						data.hpStocks = value;
-					} else if (id === this.sim.C.Systems.Wave.GameSpeed) {
-						data.gameSpeed = value;
-					}
-
-					return data;
-				});
-			},
-		);
-		this.sim.U.observer([this.sim.C.Systems.Wave.HpStocks, this.sim.C.Systems.Wave.GameSpeed], (_e, id, value) => {
-			this.sim.StateManager.waveData.update((data) => ({
-				...data,
-
-				hpStocks: id === this.sim.C.Systems.Wave.HpStocks ? value : data.hpStocks,
-				gameSpeed: id === this.sim.C.Systems.Wave.GameSpeed ? value : data.gameSpeed,
-			}));
-		});
+		if (Votes.size() >= Players.GetPlayers().size()) {
+			this.sim.world.set(this.Entity, this.sim.C.Systems.Wave.Vote, false);
+			this.startMission();
+		}
 	}
 }
