@@ -2,7 +2,7 @@
 import { RunService } from "@rbxts/services";
 
 // Packages
-import type { Entity, CachedQuery, Tag } from "@rbxts/jecs";
+import type { Entity } from "@rbxts/jecs";
 
 // Types
 import type * as Types from "@shared/types";
@@ -11,18 +11,60 @@ import type * as Types from "@shared/types";
 import Path from "./path";
 
 export default class EnemySystem {
-	public Path: Path;
+	public Entity: Entity;
+
+	private Path: Path;
 
 	constructor(private sim: Types.Core.API) {
+		this.Entity = this.sim.world.entity();
+		this.sim.world.add(this.Entity, this.sim.C.Tags.System);
+
 		this.Path = new Path();
-
-		this.sim.U.Scheduler.System((...args) => {
-			const dt = args[0] as number;
-
-			this.sim.P.Run(this.sim.P.EnsureSystem("EnemySystem", "Update"), () => this.tick(dt));
-		});
 	}
 
+	// Helpers
+	private handleEnemyDeath(e: Entity) {
+		const hpOnDeath = this.sim.world.get(e, this.sim.C.Enemy.Health);
+		if (!hpOnDeath) return;
+
+		this.sim.world.set(e, this.sim.C.Enemy.Health, 0);
+		this.sim.world.add(e, this.sim.C.Tags.Completed);
+		this.sim.world.add(e, this.sim.C.Tags.Dead);
+
+		if (RunService.IsServer()) {
+			if (this.sim.debug) this.sim.world.get(e, this.sim.C.Debug.Visual)?.Destroy();
+			this.sim.world.delete(e);
+		}
+	}
+
+	// Actions
+	public reconcilePredicted() {
+		for (const [e] of this.sim.world.query(this.sim.C.Enemy.PredictedHealth)) {
+			if (!this.sim.world.has(e, this.sim.C.Tags.Predicted) && this.sim.world.has(e, this.sim.C.Enemy.Health)) {
+				this.sim.world.remove(e, this.sim.C.Enemy.PredictedHealth);
+			}
+		}
+	}
+	public cleanupDead() {
+		for (const [e] of this.sim.world.query(this.sim.C.Tags.Dead).with(this.sim.C.Tags.Enemy)) {
+			const health = (this.sim.world.get(e, this.sim.C.Enemy.Health) as number) ?? 0;
+			const isPredicted = this.sim.world.has(e, this.sim.C.Tags.Predicted);
+			if (health <= 0 && !isPredicted) this.sim.world.delete(e);
+		}
+	}
+	public updateSimpleOrientation(e: Entity, node: number, path: Vector3[]) {
+		const endIdx = math.max(0, path.size() - 1);
+		const i = math.clamp(node, 0, math.max(0, endIdx - 1));
+		const a = path[i];
+		const b = path[i + 1] ?? a;
+		const dir = b.sub(a);
+
+		if (dir.Magnitude > 1e-6) {
+			this.sim.world.set(e, this.sim.C.Vectors.Orientation, dir.Unit);
+		}
+	}
+
+	// Core
 	public tick(dt: number) {
 		const systemCached = this.sim.cachedQueries.systems;
 		const enemyCached = this.sim.cachedQueries.enemies;
@@ -35,9 +77,6 @@ export default class EnemySystem {
 				routes = r;
 				break;
 			}
-		}
-
-		for (const e of enemyCached.iter()) {
 		}
 
 		if (!routes || routes.size() === 0) return;
@@ -80,48 +119,6 @@ export default class EnemySystem {
 					);
 				}
 			}
-		}
-	}
-
-	private handleEnemyDeath(e: Entity) {
-		const hpOnDeath = this.sim.world.get(e, this.sim.C.Enemy.Health);
-		if (!hpOnDeath) return;
-
-		this.sim.world.set(e, this.sim.C.Enemy.Health, 0);
-		this.sim.world.add(e, this.sim.C.Tags.Completed);
-		this.sim.world.add(e, this.sim.C.Tags.Dead);
-
-		if (RunService.IsServer()) {
-			if (this.sim.debug) this.sim.world.get(e, this.sim.C.Debug.Visual)?.Destroy();
-			this.sim.world.delete(e);
-		}
-	}
-
-	public updateSimpleOrientation(e: Entity, node: number, path: Vector3[]) {
-		const endIdx = math.max(0, path.size() - 1);
-		const i = math.clamp(node, 0, math.max(0, endIdx - 1));
-		const a = path[i];
-		const b = path[i + 1] ?? a;
-		const dir = b.sub(a);
-
-		if (dir.Magnitude > 1e-6) {
-			this.sim.world.set(e, this.sim.C.Vectors.Orientation, dir.Unit);
-		}
-	}
-
-	public reconcilePredicted() {
-		for (const [e] of this.sim.world.query(this.sim.C.Enemy.PredictedHealth)) {
-			if (!this.sim.world.has(e, this.sim.C.Tags.Predicted) && this.sim.world.has(e, this.sim.C.Enemy.Health)) {
-				this.sim.world.remove(e, this.sim.C.Enemy.PredictedHealth);
-			}
-		}
-	}
-
-	public cleanupDead() {
-		for (const [e] of this.sim.world.query(this.sim.C.Tags.Dead).with(this.sim.C.Tags.Enemy)) {
-			const health = (this.sim.world.get(e, this.sim.C.Enemy.Health) as number) ?? 0;
-			const isPredicted = this.sim.world.has(e, this.sim.C.Tags.Predicted);
-			if (health <= 0 && !isPredicted) this.sim.world.delete(e);
 		}
 	}
 }

@@ -10,12 +10,11 @@ export const Enemies: Types.Core.Map.EnemyTemplate[] = [
 
 const SandVillage: Types.Core.Map.Mission = {
 	id: "Sand Village",
-	interWaveDelay: 5,
 	enemies: Enemies,
 	waves: [
 		{
 			id: "wave-1",
-			spawns: [{ at: 0, enemy: "base", count: 5, interval: 0.4 }],
+			spawns: [{ at: 0.25, enemy: "base", count: 5, interval: 0.5 }],
 			reward: 25,
 		},
 		{

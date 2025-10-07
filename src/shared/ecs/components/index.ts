@@ -1,6 +1,6 @@
 // Packages
-import { Shared } from "@rbxts/replecs";
-import { Name } from "@rbxts/jecs";
+import Replecs from "@rbxts/replecs";
+import Jecs from "@rbxts/jecs";
 
 // Types
 import * as Types from "@shared/types";
@@ -30,15 +30,15 @@ export default class Components {
 	// --- Helpers ---
 	private defineComponent<T>(name: string) {
 		const comp = this.sim.world.component<T>();
-		this.sim.world.set(comp, Name, name);
-		this.sim.world.add(comp, Shared);
+		this.sim.world.set(comp, Jecs.Name, name);
+		this.sim.world.add(comp, Replecs.Shared);
 		return comp;
 	}
 
 	private defineTag(name: string) {
 		const tag = this.sim.world.entity();
-		this.sim.world.set(tag, Name, name);
-		this.sim.world.add(tag, Shared);
+		this.sim.world.set(tag, Jecs.Name, name);
+		this.sim.world.add(tag, Replecs.Shared);
 		return tag;
 	}
 }

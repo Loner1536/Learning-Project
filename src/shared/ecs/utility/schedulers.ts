@@ -2,11 +2,23 @@
 import { RunService } from "@rbxts/services";
 
 // Types
+import type { SystemId } from "@rbxts/jabby/out/jabby/modules/types";
 import type * as Types from "@shared/types";
 
 // Packages
 import { Entity, pair } from "@rbxts/jecs";
 import { scheduler } from "@rbxts/jabby";
+
+export type OrderedSystems = Array<string | ((...args: unknown[]) => void)>;
+
+export type EventMap = Map<unknown, Systems>;
+export type Systems = System[];
+export type System = {
+	callback: (...args: unknown[]) => void;
+	name: string;
+	id?: SystemId;
+	group?: string;
+};
 
 export default class Schedulers {
 	private dependsOnEntity: Entity;
@@ -22,7 +34,7 @@ export default class Schedulers {
 	private preRenderEntity: Entity;
 	private heartbeatEntity: Entity;
 
-	private currentSystem: Types.Core.Utility.Scheduler.System | undefined;
+	private currentSystem: System | undefined;
 	public instance = scheduler.create();
 
 	public stepPhases = {} as Record<string, Entity>;
@@ -91,10 +103,7 @@ export default class Schedulers {
 		}
 	}
 
-	public Initialize(
-		events: Types.Core.Utility.Scheduler.EventMap,
-		orderTable?: Types.Core.Utility.Scheduler.OrderedSystems,
-	): () => void {
+	public Initialize(events: EventMap, orderTable?: OrderedSystems): () => void {
 		const connections = new Map<unknown, RBXScriptConnection>();
 
 		if (orderTable) {
@@ -146,14 +155,14 @@ export default class Schedulers {
 		};
 	}
 
-	private CollectSystemsUnderEventRecursive(systems: Types.Core.Utility.Scheduler.Systems, phaseEntity: Entity) {
+	private CollectSystemsUnderEventRecursive(systems: Systems, phaseEntity: Entity) {
 		const depends = pair(this.dependsOnEntity, phaseEntity);
 		const phaseHidden = this.sim.world.has(phaseEntity, this.hiddenEntity);
 
 		for (const [systemId, system] of this.sim.world.query(this.systemEntity).with(depends).iter()) {
 			const comp = system as { name: string; callback: (...args: unknown[]) => void; group?: string };
 
-			const systemEntry: Types.Core.Utility.Scheduler.System = {
+			const systemEntry: System = {
 				name: comp.name,
 				callback: comp.callback,
 				group: comp.group,
@@ -174,14 +183,14 @@ export default class Schedulers {
 		}
 	}
 
-	public CollectSystemsUnderEvent(eventEntity: Entity): Types.Core.Utility.Scheduler.Systems {
-		const systems: Types.Core.Utility.Scheduler.Systems = [];
+	public CollectSystemsUnderEvent(eventEntity: Entity): Systems {
+		const systems: Systems = [];
 		this.CollectSystemsUnderEventRecursive(systems, eventEntity);
 		return systems;
 	}
 
-	public CollectSystems(): Types.Core.Utility.Scheduler.EventMap {
-		const events = new Map<unknown, Types.Core.Utility.Scheduler.Systems>();
+	public CollectSystems(): EventMap {
+		const events = new Map<unknown, Systems>();
 		for (const [phaseEntity, eventEntity] of this.sim.world.query(this.eventEntity).with(this.phaseEntity).iter()) {
 			events.set(eventEntity, this.CollectSystemsUnderEvent(phaseEntity));
 		}

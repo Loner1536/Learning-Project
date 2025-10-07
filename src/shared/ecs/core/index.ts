@@ -103,18 +103,21 @@ export default class Core {
 
 		this.U.Scheduler.System((...args) => {
 			const dt = args[0] as number;
-			return this.tick(dt);
+
+			this.tick(dt);
 		});
 
 		this.initPlayerAdd();
 	}
 
 	public tick(dt: number) {
-		for (const [systemEntity] of this.cachedQueries.systems.iter()) {
-			const gameSpeed = this.world.get(systemEntity, this.C.Systems.Wave.GameSpeed);
-		}
+		const activeWave = this.world.get(this.S.Wave.Entity, this.C.Systems.Wave.ActiveWave);
+		if (activeWave && activeWave > 0) this.simTime += dt;
 
-		// const effectiveDt = dt * math.clamp(this.S.Wave.gameSpeed, 0, 3);
-		// this.simTime += effectiveDt;
+		const gameSpeed = this.world.get(this.S.Wave.Entity, this.C.Systems.Wave.GameSpeed) ?? 1;
+		dt = dt * math.clamp(gameSpeed, 1, 3);
+
+		this.P.Run(this.P.EnsureSystem("WaveSystem", "Update"), () => this.S.Wave.tick(dt));
+		this.P.Run(this.P.EnsureSystem("EnemySystem", "Update"), () => this.S.Enemy.tick(dt));
 	}
 }

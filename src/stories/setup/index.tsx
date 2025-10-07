@@ -1,114 +1,38 @@
-// // Packages
-// import Network, { NetworkData } from "@shared/network";
-// import CharmSync from "@rbxts/charm-sync";
-// import Forge from "@rbxts/forge";
-// import Vide from "@rbxts/vide";
+// Packages
+import Forge from "@rbxts/forge";
 
-// // Types
-// import type { InferVideProps } from "@rbxts/ui-labs";
+// Types
+import type { InferVideProps } from "@rbxts/ui-labs";
 
-// // Types
-// import type * as Types from "@shared/types";
+// Types
+import { type ReturnControls } from "@rbxts/ui-labs/src/ControlTypings/Typing";
+import type * as Types from "@shared/types";
 
-// // Utility
-// import px from "@shared/utility/px";
+// Utility
+import px from "@shared/utility/px";
 
-// // Components
-// import states from "@shared/stateManager/states";
-// import template from "./template";
+// Dependencies
+import InterfaceManager from "@client/controllers/interfaceManager";
+import JecsManager from "@client/controllers/jecsManager";
 
-// // Dependencies
-// import InterfaceManager from "@client/controllers/interfaceManager";
-// import JecsManager from "@client/controllers/jecsManager";
+export default function setup<T extends ReturnControls>(
+	callback: (props: InferVideProps<T> & Types.InterfaceProps.default) => Vide.Node,
+) {
+	return (props: InferVideProps<T>) => {
+		const mockedPlayer = {
+			Name: "UI-Labs Player",
+			UserId: 123456,
+		} as Player;
 
-// const syncer = CharmSync.client({ atoms: states });
+		const jecsManager = new JecsManager();
+		const interfaceManager = new InterfaceManager(jecsManager);
 
-// export default function (
-// 	props: InferVideProps<{}>,
-// 	forgeComponent: ({ props }: { props: Types.InterfaceProps.default }) => GuiObject | GuiObject[],
-// 	callback: (interfaceProps: Types.InterfaceProps.default) => void,
-// ) {
-// 	px.setTarget(props.target);
+		const interfaceProps = interfaceManager.buildProps(mockedPlayer);
+		if (!interfaceProps) error("Failed to build interface props for UI-Labs");
 
-// 	const mockedPlayer = {
-// 		Name: "UI-Labs",
-// 		UserId: math.random(1, 1000000000),
-// 	} as unknown as Player;
+		Forge.render(props.target);
+		px.setTarget(props.target);
 
-// 	const playerData = table.clone(template);
-
-// 	const playersMap = new Map<string, unknown>();
-// 	playersMap.set(tostring(mockedPlayer.UserId), playerData);
-
-// 	const payload = {
-// 		type: "init",
-// 		data: { players: playersMap },
-// 	};
-
-// 	syncer.sync(payload as never);
-
-// 	const mockedStore = {
-// 		updateAsync: (
-// 			_: unknown,
-// 			player: Player,
-// 			transformFunction: (data: NetworkData.State.PlayerData.Default) => boolean,
-// 		): boolean => {
-// 			let success = false;
-
-// 			if (transformFunction(playerData)) {
-// 				success = true;
-
-// 				const playersMap = new Map<string, unknown>();
-// 				playersMap.set(tostring(mockedPlayer.UserId), playerData);
-
-// 				const payload = {
-// 					type: "patch",
-// 					data: { players: playersMap },
-// 				};
-// 				syncer.sync(payload as never);
-// 			}
-
-// 			return success;
-// 		},
-// 	};
-
-// 	const transformer = () => {
-// 		task.defer(() => {
-// 			props.target.GetDescendants().forEach((child: Instance) => {
-// 				if (!child.IsA || !child.IsA("GuiButton")) return;
-
-// 				Vide.apply(child)({
-// 					MouseButton1Down: () => {
-// 						if (!child.Active) return;
-
-// 						// <CreateRipple component={child} mousePos={interfaceProps.userInput.GetMouseLocation()} />;
-// 					},
-// 				});
-// 			});
-// 		});
-
-// 		Forge.render(props.target);
-
-// 		const jecsManager = new JecsManager();
-// 		const interfaceManager = new InterfaceManager(jecsManager);
-// 		const interfaceProps = interfaceManager.buildProps(mockedPlayer);
-
-// 		if (!interfaceProps) return error("couldn't build interface props");
-
-// 		callback(interfaceProps);
-
-// 		interfaceProps.network = {
-// 			wave: {
-// 				vote: {
-// 					emit: () => {
-// 						jecsManager.sim.S.Network.Wave.Vote(mockedPlayer);
-// 					},
-// 				},
-// 			},
-// 		} as Types.InterfaceProps.default["network"];
-
-// 		return forgeComponent({ props: interfaceProps });
-// 	};
-
-// 	return transformer();
-// }
+		return callback({ ...props, ...interfaceProps });
+	};
+}

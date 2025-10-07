@@ -34,5 +34,9 @@ export default class NetworkManager implements OnStart {
 
 	private Wave(world: World, C: Components, S: Systems) {
 		Network.server.on(Network.keys.wave.vote, (player: Player) => S.Wave.vote(player));
+
+		Network.server.on(Network.keys.wave.gameSpeed, (player: Player, speed: number) => {
+			S.Wave.speed(player, speed);
+		});
 	}
 }

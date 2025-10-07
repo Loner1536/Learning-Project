@@ -1,7 +1,9 @@
 // Packages
 import type { SerializeablePayload } from "@rbxts/charm-payload-converter";
 import { MessageEmitter } from "@rbxts/tether";
-import { u8, u16, Tuple, type Serializer } from "@rbxts/serio";
+
+// Types
+import type { u8, u16, Tuple } from "@rbxts/serio";
 
 // Components
 import states from "@shared/stateManager/states";
@@ -30,7 +32,7 @@ export namespace NetworkData {
 	}
 
 	export namespace Jecs {
-		export type ReplecsData = Serializer<Tuple<[buffer, unknown[][]]>> | undefined;
+		export type ReplecsData = Tuple<[buffer, unknown[][]]> | undefined;
 	}
 }
 
@@ -48,7 +50,6 @@ export const keys = {
 		receiveFullReturn: 101,
 
 		sendUpdates: 102,
-		sendUpdatesFullReturn: 103,
 	},
 } as const;
 
@@ -60,7 +61,6 @@ type MessengerPayloads = {
 	[keys.jecs.receiveFull]: void;
 	[keys.jecs.receiveFullReturn]: NetworkData.Jecs.ReplecsData;
 	[keys.jecs.sendUpdates]: NetworkData.Jecs.ReplecsData;
-	[keys.jecs.sendUpdatesFullReturn]: NetworkData.Jecs.ReplecsData;
 };
 
 function createMessenger() {

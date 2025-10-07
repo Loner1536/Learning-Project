@@ -1,14 +1,16 @@
 export default class Interval {
-	private pin: number | undefined;
+	private nextTick: number;
 
-	constructor(private intervalSeconds: number) {}
+	constructor(private intervalSeconds: number) {
+		this.nextTick = os.clock() + intervalSeconds;
+	}
 
 	public tick(): boolean {
-		if (this.pin === undefined) this.pin = os.clock();
-
-		const elapsed = os.clock() - this.pin > this.intervalSeconds;
-		if (elapsed) this.pin = os.clock();
-
-		return elapsed;
+		const now = os.clock();
+		if (now >= this.nextTick) {
+			this.nextTick += this.intervalSeconds;
+			return true;
+		}
+		return false;
 	}
 }

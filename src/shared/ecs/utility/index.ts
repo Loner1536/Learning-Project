@@ -1,7 +1,5 @@
-// Packages
-import Object, { copy } from "@rbxts/object-utils";
-
 // Types
+import type { Entity, Id } from "@rbxts/jecs";
 import type * as Types from "@shared/types";
 
 // Utility
@@ -10,7 +8,6 @@ import EntityNamer from "./add_names";
 import Schedulers from "./schedulers";
 import Interval from "./interval";
 import RefManager from "./ref";
-import { Entity, Id } from "@rbxts/jecs";
 
 export default class Utility {
 	public Scheduler: Schedulers;
@@ -40,7 +37,7 @@ export default class Utility {
 		}
 	}
 
-	public interval(seconds: number) {
+	public every(seconds: number) {
 		const interval = new Interval(seconds);
 		return () => interval.tick();
 	}
