@@ -12,6 +12,7 @@ import safePlayerAdded from "@shared/utility/safePlayerAdded";
 
 // Components
 import StateManager from "@shared/stateManager";
+import getReplicator from "../replicator";
 import Components from "../components";
 import JabbyProfiler from "./jabby";
 import Systems from "../systems";
@@ -31,6 +32,8 @@ export default class Core {
 	public C: Components;
 	public U: Utility;
 	public S: Systems;
+
+	public Replicators: ReturnType<typeof getReplicator>;
 
 	public StateManager = new StateManager();
 
@@ -72,12 +75,10 @@ export default class Core {
 					}
 				}
 
-				if (RunService.IsServer()) {
-					const playerData = this.party.get(tostring(player.UserId)) as Types.Core.Party.Host;
-					if (!playerData) return;
+				const playerData = this.party.get(tostring(player.UserId)) as Types.Core.Party.Host;
+				if (!playerData) return;
 
-					this.S.Wave.loadMap(playerData.data);
-				}
+				this.S.Wave.loadMap(playerData.data);
 			} else {
 				this.party.set(tostring(player.UserId), {
 					type: "member",
@@ -107,17 +108,27 @@ export default class Core {
 			this.tick(dt);
 		});
 
+		this.Replicators = getReplicator(this);
+
 		this.initPlayerAdd();
 	}
 
 	public tick(dt: number) {
 		const activeWave = this.world.get(this.S.Wave.Entity, this.C.Systems.Wave.ActiveWave);
-		if (activeWave && activeWave > 0) this.simTime += dt;
+		if (activeWave && activeWave >= 0) this.simTime += dt;
 
 		const gameSpeed = this.world.get(this.S.Wave.Entity, this.C.Systems.Wave.GameSpeed) ?? 1;
 		dt = dt * math.clamp(gameSpeed, 1, 3);
 
-		this.P.Run(this.P.EnsureSystem("WaveSystem", "Update"), () => this.S.Wave.tick(dt));
 		this.P.Run(this.P.EnsureSystem("EnemySystem", "Update"), () => this.S.Enemy.tick(dt));
+
+		const WaveId = this.P.EnsureSystem("WaveSystem", "Update");
+		this.P.Run(WaveId, () => (RunService.IsServer() ? this.S.Wave.serverTick(dt) : this.S.Wave.clientTick(dt)));
+
+		if (RunService.IsClient()) {
+			for (const [e] of this.cachedQueries.enemies.iter()) {
+				const health = this.world.get(e, this.C.Enemy.Health);
+			}
+		}
 	}
 }

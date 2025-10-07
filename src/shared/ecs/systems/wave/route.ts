@@ -8,10 +8,10 @@ export default class Route {
 	public buildRoutesFromWorld(): Types.Core.Route.Info[] {
 		const routes: Types.Core.Route.Info[] = [];
 
-		const map = Workspace.FindFirstChild("Map") as Model;
+		const map = Workspace.WaitForChild("Map") as Model;
 		assert(map, "[Route] No Map model found in Workspace");
 
-		const routeFolder = map.FindFirstChild("Route") as Folder;
+		const routeFolder = map.WaitForChild("Route") as Folder;
 		assert(routeFolder, "[Route] No Route folder found in Map");
 
 		const spawnFolders = routeFolder.GetChildren().filter((c) => c.IsA("Folder")) as Folder[];

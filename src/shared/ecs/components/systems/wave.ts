@@ -20,6 +20,7 @@ function Wave(defineComponent: <T>(name: string) => Entity<T>) {
 		WaveTime: defineComponent<number>("System/Wave/Time"),
 
 		ActiveSpawns: defineComponent<Types.Core.Wave.ActiveSpawn[]>("System/Wave/ActiveSpawns"),
+		AllSpawned: defineComponent<boolean>("System/Wave/AllSpawned"),
 
 		Votes: defineComponent<Array<string>>("System/Wave/Votes"),
 		Vote: defineComponent<boolean>("System/Wave/Vote"),
