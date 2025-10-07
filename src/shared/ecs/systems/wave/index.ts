@@ -157,6 +157,7 @@ export default class WaveSystem {
 				const e = this.sim.world.entity();
 
 				this.sim.world.add(e, this.sim.C.Tags.Enemy);
+				this.sim.world.set(e, networked, undefined);
 
 				this.sim.world.set(e, this.sim.C.Enemy.PathProgress, { node: 0, progress: 0 });
 				this.sim.world.set(e, this.sim.C.Vectors.Grid, new Vector2(startNode.X, startNode.Y));
@@ -165,6 +166,10 @@ export default class WaveSystem {
 				this.sim.world.set(e, this.sim.C.Enemy.MaxHealth, enemyDef.health);
 				this.sim.world.set(e, this.sim.C.Enemy.Health, enemyDef.health);
 				this.sim.world.set(e, this.sim.C.Enemy.Speed, enemyDef.speed);
+
+				this.sim.world.set(e, pair(unreliable, this.sim.C.Enemy.MaxHealth), undefined);
+				this.sim.world.set(e, pair(unreliable, this.sim.C.Enemy.Health), undefined);
+				this.sim.world.set(e, pair(unreliable, this.sim.C.Enemy.Speed), undefined);
 
 				this.sim.S.Enemy.updateSimpleOrientation(e, 0, route.path);
 
