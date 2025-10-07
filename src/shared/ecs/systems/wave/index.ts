@@ -2,8 +2,8 @@
 import { Players, RunService, ServerStorage, Workspace } from "@rbxts/services";
 
 // Packages
-import { pair, TagDiscriminator, World, type Entity } from "@rbxts/jecs";
-import { networked, reliable, unreliable } from "@rbxts/replecs";
+import { pair, World, type Entity } from "@rbxts/jecs";
+import { networked, reliable } from "@rbxts/replecs";
 
 // Types
 import type Components from "@shared/ecs/components";
@@ -167,9 +167,9 @@ export default class WaveSystem {
 				this.sim.world.set(e, this.sim.C.Enemy.Health, enemyDef.health);
 				this.sim.world.set(e, this.sim.C.Enemy.Speed, enemyDef.speed);
 
-				this.sim.world.set(e, pair(unreliable, this.sim.C.Enemy.MaxHealth), undefined);
-				this.sim.world.set(e, pair(unreliable, this.sim.C.Enemy.Health), undefined);
-				this.sim.world.set(e, pair(unreliable, this.sim.C.Enemy.Speed), undefined);
+				this.sim.world.set(e, pair(reliable, this.sim.C.Enemy.MaxHealth), undefined);
+				this.sim.world.set(e, pair(reliable, this.sim.C.Enemy.Health), undefined);
+				this.sim.world.set(e, pair(reliable, this.sim.C.Enemy.Speed), undefined);
 
 				this.sim.S.Enemy.updateSimpleOrientation(e, 0, route.path);
 
