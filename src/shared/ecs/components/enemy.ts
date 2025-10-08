@@ -1,9 +1,12 @@
 // Packages
-import { Entity } from "@rbxts/jecs";
+import { type Entity } from "@rbxts/jecs";
 
 function Enemy(defineComponent: <T>(name: string) => Entity<T>) {
 	return {
+		Model: defineComponent<Model | undefined>("Enemy/Model"),
 		Id: defineComponent<string>("Enemy/Id"),
+
+		RenderedCFrame: defineComponent<CFrame>("Enemy/RenderedPosition"),
 
 		KillCreditOwnerId: defineComponent<string>("Enemy/KillCreditOwnerId"),
 		RouteIndex: defineComponent<number>("Enemy/RouteIndex"),
@@ -20,6 +23,8 @@ function Enemy(defineComponent: <T>(name: string) => Entity<T>) {
 
 		PathProgress: defineComponent<{ node: number; progress: number }>("Enemy/PathProgress"),
 		PathIndex: defineComponent<number>("Enemy/PathIndex"),
+
+		State: defineComponent<"idle" | "walking" | "running" | "dead">("Enemy/State"),
 	} as const;
 }
 

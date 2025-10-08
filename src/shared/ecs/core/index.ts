@@ -41,7 +41,10 @@ export default class Core {
 
 	private simTime = 0;
 
-	public debug = true;
+	private debugs = {
+		server: true,
+		client: false,
+	};
 
 	private initPlayerAdd() {
 		safePlayerAdded((player) => {
@@ -113,6 +116,10 @@ export default class Core {
 		this.initPlayerAdd();
 	}
 
+	public debug() {
+		return RunService.IsServer() ? this.debugs.server : this.debugs.client;
+	}
+
 	public tick(dt: number) {
 		const activeWave = this.world.get(this.S.Wave.Entity, this.C.Systems.Wave.ActiveWave);
 		if (activeWave && activeWave >= 0) this.simTime += dt;
@@ -121,14 +128,6 @@ export default class Core {
 		dt = dt * math.clamp(gameSpeed, 1, 3);
 
 		this.P.Run(this.P.EnsureSystem("EnemySystem", "Update"), () => this.S.Enemy.tick(dt));
-
-		const WaveId = this.P.EnsureSystem("WaveSystem", "Update");
-		this.P.Run(WaveId, () => (RunService.IsServer() ? this.S.Wave.serverTick(dt) : this.S.Wave.clientTick(dt)));
-
-		if (RunService.IsClient()) {
-			for (const [e] of this.cachedQueries.enemies.iter()) {
-				const health = this.world.get(e, this.C.Enemy.Health);
-			}
-		}
+		this.P.Run(this.P.EnsureSystem("WaveSystem", "Update"), () => this.S.Wave.tick(dt));
 	}
 }

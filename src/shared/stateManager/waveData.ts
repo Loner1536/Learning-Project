@@ -2,11 +2,11 @@
 import { RunService } from "@rbxts/services";
 
 // Packages
-import { SyncPayload } from "@rbxts/charm-sync";
-import { NetworkData } from "@shared/network";
 import { useAtom } from "@rbxts/vide-charm";
 import Object from "@rbxts/object-utils";
-import Remap from "@rbxts/remap";
+
+// Types
+import type * as Types from "@shared/types";
 
 // Components
 import states from "@shared/stateManager/states";
@@ -37,7 +37,7 @@ export default class WaveData {
 		};
 	}
 
-	public update(updater: (data: NetworkData.State.WaveData.Default) => NetworkData.State.WaveData.Default) {
+	public update(updater: (data: Types.Network.States.WaveData) => Types.Network.States.WaveData) {
 		if (RunService.IsClient() && RunService.IsRunning()) {
 			return warn("[WaveData] update should only be called on the server");
 		}

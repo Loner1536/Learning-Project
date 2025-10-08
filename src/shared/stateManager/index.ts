@@ -25,7 +25,7 @@ export default class StateManager {
 			const syncer = server({ atoms: states, autoSerialize: false });
 
 			syncer.connect((player, payload) => {
-				const filteredPayload = this.filterPayload(player, payload);
+				const filteredPayload = this.filterPayload(player, payload as never);
 				if (CharmSync.isNone(filteredPayload)) return;
 
 				Network.client.emit(player, Network.keys.state.sync, toSerializeablePayload(filteredPayload));
@@ -43,7 +43,7 @@ export default class StateManager {
 		}
 	}
 
-	private filterPayload(player: Player, payload: SyncPayload<typeof states>): SyncPayload<typeof states> {
+	private filterPayload(player: Player, payload: SyncPayload<typeof states>) {
 		return {
 			...payload,
 			...this.playerData.filterPayload(player, payload),

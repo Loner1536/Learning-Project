@@ -117,24 +117,6 @@ export default function TopMenu({ props }: { props: Types.InterfaceProps.default
 				>
 					<uistroke Thickness={px.useNumber(2.5)} Transparency={0.25} />
 				</textlabel>
-				<textlabel
-					Name={"Game Timer"}
-					BackgroundTransparency={1}
-					AnchorPoint={new Vector2(0, 0.5)}
-					Position={px.useUDim2(1, 10, 0.5, 0)}
-					Size={px.useUDim2(150, 50)}
-					TextColor3={Color3.fromRGB(255, 255, 255)}
-					Font={"FredokaOne"}
-					TextSize={px.useNumber(28)}
-					Text={() => {
-						return `${props.playerData.gold()}`;
-					}}
-					TextXAlignment={"Left"}
-					TextYAlignment={"Center"}
-					RichText
-				>
-					<uistroke Thickness={px.useNumber(2.5)} Transparency={0.25} />
-				</textlabel>
 
 				<uistroke Thickness={px.useNumber(2.5)} Transparency={0.25} />
 				<uicorner CornerRadius={px.useUDim(50)} />
@@ -215,7 +197,13 @@ export default function TopMenu({ props }: { props: Types.InterfaceProps.default
 					MouseButton1Up={() => {
 						onPress(false);
 
-						props.network.wave.vote.emit();
+						props.network.server
+							.invoke(props.network.keys.wave.vote, props.network.keys.wave.voteReturn)
+							.then((success) => {
+								if (!success) return;
+
+								props.sim.S.Wave.vote(Players.LocalPlayer);
+							});
 					}}
 				/>
 			</frame>

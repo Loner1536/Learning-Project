@@ -1,0 +1,13 @@
+[creator]
+type = "user"
+id = 2828974715
+
+[codegen]
+strip_extension = true
+typescript = true
+style = "nested"
+
+[inputs.assets]
+output_path = "src/shared"
+path = "assets/asphalt/**"
+asset_dir = "assets"

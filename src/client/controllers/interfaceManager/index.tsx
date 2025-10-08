@@ -41,7 +41,6 @@ export default class InterfaceManager implements OnStart {
 			const props = this.buildProps(player);
 			if (!props) return error("couldn't build interface props");
 
-			// On spawn animation
 			task.delay(1, () => {
 				props.topMenu.visible(true);
 			});
@@ -60,18 +59,12 @@ export default class InterfaceManager implements OnStart {
 		if (!waveData) return warn("couldn't get wave data for interface manager");
 
 		return {
+			sim: this.jecsManager.sim,
+
 			playerData: playerData,
 			waveData: waveData,
 
-			network: {
-				wave: {
-					vote: {
-						emit: () => {
-							Network.server.emit(Network.keys.wave.vote);
-						},
-					},
-				},
-			},
+			network: Network,
 
 			topMenu: {
 				visible: source(false),

@@ -7,7 +7,7 @@ import type { Entity } from "@rbxts/jecs";
 // Types
 import type * as Types from "@shared/types";
 
-// Components
+// Classes
 import Path from "./path";
 
 export default class EnemySystem {
@@ -32,26 +32,41 @@ export default class EnemySystem {
 		this.sim.world.add(e, this.sim.C.Tags.Dead);
 
 		if (RunService.IsServer()) {
-			if (this.sim.debug) this.sim.world.get(e, this.sim.C.Debug.Visual)?.Destroy();
+			if (this.sim.debug()) this.sim.world.get(e, this.sim.C.Debug.Visual)?.Destroy();
 			this.sim.world.delete(e);
+		}
+	}
+	private handleMovement(dt: number, e: Entity, targetPos: Vector3) {
+		let orientation = this.sim.world.get(e, this.sim.C.Vectors.Orientation) ?? new Vector3(1, 0, 0);
+
+		const groundOffset = new CFrame(0, 1, 0);
+		const targetCFrame = CFrame.lookAt(targetPos, targetPos.add(orientation));
+
+		if (this.sim.debug()) {
+			const debugPart = this.sim.world.get(e, this.sim.C.Debug.Visual);
+			if (debugPart) {
+				debugPart.PivotTo(RunService.IsServer() ? targetCFrame : targetCFrame.mul(groundOffset));
+			}
+		}
+
+		if (RunService.IsClient()) {
+			const prevCFrame = this.sim.world.get(e, this.sim.C.Enemy.RenderedCFrame) ?? targetCFrame;
+			const model = this.sim.world.get(e, this.sim.C.Enemy.Model) as Model;
+			if (!model) return;
+
+			const speed = this.sim.world.get(e, this.sim.C.Enemy.Speed) ?? 0;
+
+			const lerpFactor = math.clamp(dt * speed, 0, 1);
+
+			const desiredCFrame = CFrame.lookAt(prevCFrame.Position.Lerp(targetPos, lerpFactor), targetPos);
+
+			model.PivotTo(desiredCFrame.mul(groundOffset));
+
+			this.sim.world.set(e, this.sim.C.Enemy.RenderedCFrame, desiredCFrame);
 		}
 	}
 
 	// Actions
-	public reconcilePredicted() {
-		for (const [e] of this.sim.world.query(this.sim.C.Enemy.PredictedHealth)) {
-			if (!this.sim.world.has(e, this.sim.C.Tags.Predicted) && this.sim.world.has(e, this.sim.C.Enemy.Health)) {
-				this.sim.world.remove(e, this.sim.C.Enemy.PredictedHealth);
-			}
-		}
-	}
-	public cleanupDead() {
-		for (const [e] of this.sim.world.query(this.sim.C.Tags.Dead).with(this.sim.C.Tags.Enemy)) {
-			const health = (this.sim.world.get(e, this.sim.C.Enemy.Health) as number) ?? 0;
-			const isPredicted = this.sim.world.has(e, this.sim.C.Tags.Predicted);
-			if (health <= 0 && !isPredicted) this.sim.world.delete(e);
-		}
-	}
 	public updateSimpleOrientation(e: Entity, node: number, path: Vector3[]) {
 		const endIdx = math.max(0, path.size() - 1);
 		const i = math.clamp(node, 0, math.max(0, endIdx - 1));
@@ -66,32 +81,19 @@ export default class EnemySystem {
 
 	// Core
 	public tick(dt: number) {
-		const systemCached = this.sim.cachedQueries.systems;
-		const enemyCached = this.sim.cachedQueries.enemies;
+		for (const [e] of this.sim.cachedQueries.enemies.iter()) {
+			const routes = this.sim.world.get(this.sim.S.Wave.Entity, this.sim.C.Systems.Wave.Routes);
+			if (!routes) continue;
 
-		let routes: Types.Core.Route.Info[] | undefined;
-
-		for (const [e] of systemCached.iter()) {
-			const r = this.sim.world.get(e, this.sim.C.Systems.Wave.Routes);
-			if (r) {
-				routes = r;
-				break;
-			}
-		}
-
-		if (!routes || routes.size() === 0) return;
-
-		for (const [e] of enemyCached.iter()) {
 			const speed = this.sim.world.get(e, this.sim.C.Enemy.Speed) ?? 0;
 			if (speed <= 0) continue;
 
 			const pathProg = this.sim.world.get(e, this.sim.C.Enemy.PathProgress);
 			if (!pathProg) continue;
 
-			const routeIndex = this.sim.world.get(e, this.sim.C.Enemy.PathIndex) ?? 1;
-			const route = routes[math.clamp(routeIndex - 1, 0, routes.size() - 1)];
-
-			if (!route || route.models.size() < 2) continue;
+			const routeIndex = this.sim.world.get(e, this.sim.C.Enemy.PathIndex) ?? 0;
+			const route = routes[math.clamp(routeIndex, 0, routes.size() - 1)];
+			if (!route || route.path.size() < 2) continue;
 
 			const distance = speed * dt;
 
@@ -110,15 +112,7 @@ export default class EnemySystem {
 				continue;
 			}
 
-			if (this.sim.debug) {
-				const debugPart = this.sim.world.get(e, this.sim.C.Debug.Visual) as BasePart | undefined;
-				if (debugPart) {
-					debugPart.CFrame = CFrame.lookAt(
-						worldPos,
-						worldPos.add(this.sim.world.get(e, this.sim.C.Vectors.Orientation) ?? new Vector3(1, 0, 0)),
-					);
-				}
-			}
+			this.handleMovement(dt, e, worldPos);
 		}
 	}
 }

@@ -45,6 +45,9 @@
 			"Enemies": {
 				"$className": "Folder"
 			},
+			"Towers": {
+				"$className": "Folder"
+			},
 			"Debug": {
 				"$className": "Folder"
 			}

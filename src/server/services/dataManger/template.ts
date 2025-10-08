@@ -1,9 +1,38 @@
 // Packages
-import { NetworkData } from "@shared/network";
+import type * as Types from "@shared/types";
 
 const defaultData = {
 	gems: 0,
-	gold: 0,
-} satisfies NetworkData.State.PlayerData.Default;
+
+	units: [
+		{
+			id: "Test",
+			uuid: "unit-1",
+
+			obtainedAt: 123123123,
+
+			trait: "Test",
+			traitData: [{ trait: "Test", time: 123123123 }],
+
+			evo: 0,
+
+			shiny: false,
+
+			locked: false,
+			favorited: false,
+
+			level: {
+				value: 1,
+				current: 0,
+			},
+			potential: {
+				damage: 1.1,
+				range: 1.1,
+				spa: 1.1,
+			},
+		},
+	],
+	team: ["unit-1", "", "", "", "", ""],
+} satisfies Types.Network.States.PlayerData;
 
 export default defaultData;

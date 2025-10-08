@@ -11,7 +11,7 @@ export default class JecsManager implements OnInit {
 	public sim = getSim();
 
 	onInit() {
-		Network.server.on(Network.keys.jecs.receiveFull, (player) => {
+		Network.server.setCallback(Network.keys.jecs.receiveFull, Network.keys.jecs.receiveFullReturn, (player) => {
 			replicator.mark_player_ready(player);
 
 			const [buf, variants] = replicator.get_full(player);
@@ -24,7 +24,6 @@ export default class JecsManager implements OnInit {
 		this.sim.U.Scheduler.System(() => {
 			if (reliableInterval()) {
 				for (const [player, buf, variants] of replicator.collect_updates()) {
-					print("sending reliable update to", player.Name, buf, variants);
 					Network.client.emit(player, Network.keys.jecs.sendUpdates, [buf, variants]);
 				}
 			}

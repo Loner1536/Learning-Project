@@ -18,6 +18,8 @@ export type Wave = {
 	reward?: number; // optional currency reward
 	/** Optional: declarative that this wave contains a boss (for UI prompts). */
 	bossWave?: boolean;
+
+	routeIndex?: number;
 };
 export type Mission = {
 	id: string;
@@ -28,11 +30,10 @@ export type EnemyTemplate = {
 	id: string;
 	health: number;
 	speed: number; // tiles per second
+
 	/** Optional marker so spawner can tag as Boss and UI can react. */
 	boss?: boolean;
 	/** Optional currency bounty for killing this enemy (server grants on death). */
-	bounty?: number;
-	/** Optional starting shield value that absorbs damage before health. */
 	shield?: number;
 	/** Optional incoming damage multiplier applied while shield > 0. Default 1. */
 	shieldMultiplier?: number;

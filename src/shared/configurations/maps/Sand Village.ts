@@ -2,10 +2,10 @@
 import type * as Types from "@shared/types";
 
 export const Enemies: Types.Core.Map.EnemyTemplate[] = [
-	{ id: "base", health: 10, speed: 3, bounty: 5 },
-	{ id: "runner", health: 8, speed: 5, bounty: 6 },
-	{ id: "heavy", health: 40, speed: 1.5, bounty: 20, shield: 12, shieldMultiplier: 1 },
-	{ id: "boss", health: 2000, speed: 1.2, boss: true, bounty: 250, shield: 500, shieldMultiplier: 0.5 },
+	{ id: "base", health: 10, speed: 3 },
+	{ id: "runner", health: 8, speed: 5 },
+	{ id: "heavy", health: 40, speed: 1.5 },
+	{ id: "boss", health: 2000, speed: 1.2, boss: true },
 ];
 
 const SandVillage: Types.Core.Map.Mission = {

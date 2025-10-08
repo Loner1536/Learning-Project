@@ -1,11 +1,13 @@
 // Packages
-import { NetworkData } from "@shared/network";
 import { atom } from "@rbxts/charm";
 
-const states = {
-	players: atom<Map<string, NetworkData.State.PlayerData.Default>>(new Map()),
+// Types
+import type * as Types from "@shared/types";
 
-	waveData: atom<NetworkData.State.WaveData.Default>({
+const states = {
+	players: atom<Map<string, Types.Network.States.PlayerData>>(new Map()),
+
+	waveData: atom<Types.Network.States.WaveData>({
 		id: "test",
 		type: "story",
 		hpStocks: 0,

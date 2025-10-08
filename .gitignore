@@ -5,10 +5,11 @@
 /network
 *.tsbuildinfo
 flamework.build
+sourcemap.json
 *.luau
 *.lua
 *.rbxl
 *.rbxlx
 *.rbxl.lock
 *.rbxlx.lock
-sourcemap.json
+*.env

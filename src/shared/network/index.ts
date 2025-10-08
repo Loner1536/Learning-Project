@@ -3,38 +3,11 @@ import type { SerializeablePayload } from "@rbxts/charm-payload-converter";
 import { MessageEmitter } from "@rbxts/tether";
 
 // Types
+import type * as Types from "@shared/types";
 import type { u8, u16, Tuple } from "@rbxts/serio";
 
 // Components
 import states from "@shared/stateManager/states";
-
-export namespace NetworkData {
-	export namespace State {
-		export namespace PlayerData {
-			export type Default = {
-				gems: u8;
-				gold: u8;
-			};
-		}
-		export namespace WaveData {
-			export type Default = {
-				id: string;
-				type: "story";
-				hpStocks: u8;
-				vote: boolean;
-				enemies: u16;
-				gameSpeed: u8;
-				votes: u8;
-				wave: u8;
-				act: u8;
-			};
-		}
-	}
-
-	export namespace Jecs {
-		export type ReplecsData = Tuple<[buffer, unknown[][]]> | undefined;
-	}
-}
 
 export const keys = {
 	state: {
@@ -43,24 +16,38 @@ export const keys = {
 	},
 	wave: {
 		vote: 50,
-		gameSpeed: 51,
+		voteReturn: 51,
+		gameSpeed: 52,
+		gameSpeedReturn: 53,
+	},
+	towers: {
+		placement: 100,
+		placementReturn: 101,
 	},
 	jecs: {
-		receiveFull: 100,
-		receiveFullReturn: 101,
+		receiveFull: 150,
+		receiveFullReturn: 151,
 
-		sendUpdates: 102,
+		sendUpdates: 152,
 	},
 } as const;
 
 type MessengerPayloads = {
 	[keys.state.sync]: SerializeablePayload<typeof states>;
 	[keys.state.init]: void;
+
 	[keys.wave.vote]: void;
-	[keys.wave.gameSpeed]: number;
+	[keys.wave.voteReturn]: boolean;
+
+	[keys.wave.gameSpeed]: u8;
+	[keys.wave.gameSpeedReturn]: boolean;
+
+	[keys.towers.placement]: Types.Network.Towers.Placement;
+	[keys.towers.placementReturn]: Types.Network.Towers.PlacementReturn;
+
 	[keys.jecs.receiveFull]: void;
-	[keys.jecs.receiveFullReturn]: NetworkData.Jecs.ReplecsData;
-	[keys.jecs.sendUpdates]: NetworkData.Jecs.ReplecsData;
+	[keys.jecs.receiveFullReturn]: Types.Network.Jecs.ReplecsData;
+	[keys.jecs.sendUpdates]: Types.Network.Jecs.ReplecsData;
 };
 
 function createMessenger() {
