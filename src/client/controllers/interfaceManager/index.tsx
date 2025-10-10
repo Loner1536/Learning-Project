@@ -21,6 +21,8 @@ const player = Players.LocalPlayer;
 
 // Dependencies
 import JecsManager from "../jecsManager";
+import PlayerData from "@shared/stateManager/playerData";
+import { useAtom } from "@rbxts/vide-charm";
 
 @Controller({
 	loadOrder: 1,
@@ -41,9 +43,7 @@ export default class InterfaceManager implements OnStart {
 			const props = this.buildProps(player);
 			if (!props) return error("couldn't build interface props");
 
-			task.delay(1, () => {
-				props.topMenu.visible(true);
-			});
+			task.delay(1, () => {});
 
 			return <ForgeApp props={props} />;
 		}, lobby);
@@ -65,10 +65,6 @@ export default class InterfaceManager implements OnStart {
 			waveData: waveData,
 
 			network: Network,
-
-			topMenu: {
-				visible: source(false),
-			},
 		} satisfies Types.InterfaceProps.default;
 	}
 }

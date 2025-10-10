@@ -18,7 +18,7 @@ import schema from "./schema";
 
 @Service()
 export default class DataManager implements OnInit {
-	private store = createPlayerStore<Types.Network.States.PlayerData>({
+	private store = createPlayerStore<Types.Network.States.Player.Data>({
 		name: "PlayerData",
 		template: template,
 		schema: schema,
@@ -100,5 +100,9 @@ export default class DataManager implements OnInit {
 				}
 			};
 		}
+	}
+
+	public getPlayerDataStore(player: Player) {
+		return this.store.get(player);
 	}
 }

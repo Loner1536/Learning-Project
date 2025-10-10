@@ -6,7 +6,7 @@ const defaultData = {
 
 	units: [
 		{
-			id: "Test",
+			id: "Itadori",
 			uuid: "unit-1",
 
 			obtainedAt: 123123123,
@@ -33,6 +33,6 @@ const defaultData = {
 		},
 	],
 	team: ["unit-1", "", "", "", "", ""],
-} satisfies Types.Network.States.PlayerData;
+} satisfies Types.Network.States.Player.Data;
 
 export default defaultData;

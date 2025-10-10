@@ -8,15 +8,11 @@ import setup from "../setup";
 // Components
 import ForgeApp from "@client/controllers/interfaceManager/app";
 
-const controls = {
-	topMenu: Boolean(true),
-};
+const controls = {};
 
 const story = CreateVideStory(
 	{ vide: Vide, controls },
 	setup((props) => {
-		props.topMenu.visible = props.controls.topMenu;
-
 		return <ForgeApp props={props} />;
 	}),
 );

@@ -4,7 +4,7 @@ import SandVillage from "./Sand Village";
 // Configuration
 const mapConfiguration = {
 	story: {
-		SandVillage,
+		"Sand Village": SandVillage,
 	},
 } as const;
 

@@ -1,1 +1,1 @@
-export type Unit = "Test";
+export type Unit = "Jujutsu Kaisen";

@@ -1,16 +1,12 @@
-export default class Interval {
-	private nextTick: number;
+export function interval(s: number): () => boolean {
+	let pin: number | undefined;
 
-	constructor(private intervalSeconds: number) {
-		this.nextTick = os.clock() + intervalSeconds;
-	}
+	return (): boolean => {
+		if (pin === undefined) pin = os.clock();
 
-	public tick(): boolean {
-		const now = os.clock();
-		if (now >= this.nextTick) {
-			this.nextTick += this.intervalSeconds;
-			return true;
-		}
-		return false;
-	}
+		const elapsed = os.clock() - pin > s;
+		if (elapsed) pin = os.clock();
+
+		return elapsed;
+	};
 }

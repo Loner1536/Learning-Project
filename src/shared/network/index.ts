@@ -23,6 +23,9 @@ export const keys = {
 	towers: {
 		placement: 100,
 		placementReturn: 101,
+
+		selectUnit: 102,
+		selectUnitReturn: 103,
 	},
 	jecs: {
 		receiveFull: 150,
@@ -44,6 +47,8 @@ type MessengerPayloads = {
 
 	[keys.towers.placement]: Types.Network.Towers.Placement;
 	[keys.towers.placementReturn]: Types.Network.Towers.PlacementReturn;
+
+	[keys.towers.selectUnit]: Instance;
 
 	[keys.jecs.receiveFull]: void;
 	[keys.jecs.receiveFullReturn]: Types.Network.Jecs.ReplecsData;

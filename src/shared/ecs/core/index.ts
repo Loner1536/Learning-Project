@@ -1,94 +1,32 @@
 // Services
-import { RunService } from "@rbxts/services";
+import { RunService, ContextActionService } from "@rbxts/services";
 
 // Packages
-import { CachedQuery, Tag, world, type World } from "@rbxts/jecs";
-
-// Types
-import * as Types from "@shared/types";
-
-// Utility
-import safePlayerAdded from "@shared/utility/safePlayerAdded";
+import { Plugin } from "@rbxts/planck-runservice";
+import { world, type World } from "@rbxts/jecs";
+import { Scheduler } from "@rbxts/planck";
+import Jabby from "@rbxts/jabby";
 
 // Components
 import StateManager from "@shared/stateManager";
-import getReplicator from "../replicator";
 import Components from "../components";
 import JabbyProfiler from "./jabby";
-import Systems from "../systems";
-import Utility from "../utility";
 import Grid from "./grid";
 
 export default class Core {
 	public world: World;
 	public grid: Grid;
 
-	public cachedQueries: {
-		systems: CachedQuery<[Tag]>;
-		enemies: CachedQuery<[Tag]>;
-	};
-
-	public P: JabbyProfiler;
 	public C: Components;
-	public U: Utility;
-	public S: Systems;
 
-	public Replicators: ReturnType<typeof getReplicator>;
-
+	public JabbyProfiler = new JabbyProfiler();
 	public StateManager = new StateManager();
-
-	public party = new Map<string, Types.Core.Party.Host | Types.Core.Party.Member>();
-
-	private simTime = 0;
+	public Scheduler: Scheduler<[this]>;
 
 	private debugs = {
 		server: true,
 		client: false,
 	};
-
-	private initPlayerAdd() {
-		safePlayerAdded((player) => {
-			if (this.party.get(tostring(player))) return;
-
-			if (this.party.size() === 0) {
-				const joinData = player.GetJoinData();
-
-				switch (RunService.IsStudio()) {
-					case true: {
-						this.party.set(tostring(player.UserId), {
-							type: "host",
-							data: {
-								id: "SandVillage",
-								difficulty: "normal",
-								type: "story",
-							},
-						});
-						break;
-					}
-					case false: {
-						const teleportData = joinData.TeleportData as Types.Core.Party.TeleportData | undefined;
-
-						if (teleportData) {
-							this.party.set(tostring(player.UserId), {
-								type: "host",
-								data: teleportData,
-							});
-						} else error("failed to retrieve teleport data from host");
-						break;
-					}
-				}
-
-				const playerData = this.party.get(tostring(player.UserId)) as Types.Core.Party.Host;
-				if (!playerData) return;
-
-				this.S.Wave.loadMap(playerData.data);
-			} else {
-				this.party.set(tostring(player.UserId), {
-					type: "member",
-				});
-			}
-		});
-	}
 
 	constructor() {
 		this.world = world();
@@ -96,38 +34,29 @@ export default class Core {
 
 		this.C = new Components(this);
 
-		this.cachedQueries = {
-			systems: this.world.query(this.C.Tags.System).cached(),
-			enemies: this.world.query(this.C.Tags.Enemy).cached(),
+		this.Scheduler = new Scheduler(this);
+
+		this.Scheduler.addPlugin(new Plugin());
+
+		this.JabbyProfiler.Init("Gameplay");
+
+		if (RunService.IsClient()) this.bindJabbyProfiler();
+	}
+
+	private bindJabbyProfiler() {
+		const client = Jabby.obtain_client();
+
+		const createWidget = (_: unknown, state: Enum.UserInputState) => {
+			if (state !== Enum.UserInputState.Begin) {
+				return;
+			}
+			client.spawn_app(client.apps.home);
 		};
 
-		this.P = new JabbyProfiler();
-		this.U = new Utility(this);
-		this.S = new Systems(this);
-
-		this.U.Scheduler.System((...args) => {
-			const dt = args[0] as number;
-
-			this.tick(dt);
-		});
-
-		this.Replicators = getReplicator(this);
-
-		this.initPlayerAdd();
+		ContextActionService.BindAction("Open Jabby Home", createWidget, false, Enum.KeyCode.F4);
 	}
 
 	public debug() {
 		return RunService.IsServer() ? this.debugs.server : this.debugs.client;
-	}
-
-	public tick(dt: number) {
-		const activeWave = this.world.get(this.S.Wave.Entity, this.C.Systems.Wave.ActiveWave);
-		if (activeWave && activeWave >= 0) this.simTime += dt;
-
-		const gameSpeed = this.world.get(this.S.Wave.Entity, this.C.Systems.Wave.GameSpeed) ?? 1;
-		dt = dt * math.clamp(gameSpeed, 1, 3);
-
-		this.P.Run(this.P.EnsureSystem("EnemySystem", "Update"), () => this.S.Enemy.tick(dt));
-		this.P.Run(this.P.EnsureSystem("WaveSystem", "Update"), () => this.S.Wave.tick(dt));
 	}
 }

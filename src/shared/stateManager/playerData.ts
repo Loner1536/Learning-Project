@@ -19,23 +19,21 @@ export default class PlayerData {
 	private state = states.players;
 
 	// Helpers
-	private setupUnitConfig(data: Types.Network.States.PlayerData) {
-		return data.units.map(
-			(unit): Types.Network.States.PlayerData["units"][number] & Types.Configurations.Towers.Config => {
-				const config = unitConfigurations[unit.id][unit.evo];
-				if (!config) warn(`[PlayerData] Missing unit configuration for id: ${unit.id}`);
+	public setupUnitConfig(data: Types.Network.States.Player.Data) {
+		return data.units.map((unit): Types.Network.States.Player.Units.WithConfig => {
+			const config = unitConfigurations[unit.id][unit.evo];
+			if (!config) warn(`[PlayerData] Missing unit configuration for id: ${unit.id}`);
 
-				return {
-					...unit,
-					...config,
-				};
-			},
-		);
+			return {
+				...unit,
+				...config,
+			};
+		});
 	}
 
 	// Actions
-	public getState(id: string) {
-		return this.state().get(id);
+	public getState() {
+		return this.state;
 	}
 	public getProps(player: Player) {
 		if (RunService.IsServer() && RunService.IsRunning()) {
@@ -68,14 +66,14 @@ export default class PlayerData {
 	}
 
 	// Core
-	public set(id: string, newData: Types.Network.States.PlayerData) {
+	public set(id: string, newData: Types.Network.States.Player.Data) {
 		return this.state((state) => {
 			const newState = Object.deepCopy(state);
 			newState.set(id, newData);
 			return newState;
 		});
 	}
-	public update(id: string, updater: (data: Types.Network.States.PlayerData) => Types.Network.States.PlayerData) {
+	public update(id: string, updater: (data: Types.Network.States.Player.Data) => Types.Network.States.Player.Data) {
 		if (RunService.IsClient() && RunService.IsRunning()) {
 			return warn("[PlayerData] update should only be called on the server");
 		}

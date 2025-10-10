@@ -8,6 +8,7 @@ function Tags(defineTag: (name: string) => Tag) {
 		Boss: defineTag("Tags/Boss"),
 
 		System: defineTag("Tags/System"),
+		Player: defineTag("Tags/Player"),
 
 		Predicted: defineTag("Tags/Predicted"),
 		Completed: defineTag("Tags/Completed"),

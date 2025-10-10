@@ -15,7 +15,7 @@ function Wave(defineComponent: <T>(name: string) => Entity<T>) {
 
 		HpStocks: defineComponent<number>("System/Wave/HpStocks"),
 
-		ActiveWave: defineComponent<number>("System/Wave/ActiveWave"),
+		CurrentWave: defineComponent<number>("System/Wave/CurrentWave"),
 		WaveActive: defineComponent<boolean>("System/Wave/Active"),
 		WaveTime: defineComponent<number>("System/Wave/Time"),
 

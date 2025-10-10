@@ -2,17 +2,19 @@
 import type * as Types from "@shared/types";
 
 const Test: Types.Configurations.Towers.Config = {
-	name: "Test",
-	displayName: "Test",
+	name: "Itadori",
+	displayName: "Itadori",
 
 	rarity: "Test",
-	category: "Test",
+	category: "Jujutsu Kaisen",
 
 	released: true,
 	tradable: false,
 	sellable: true,
 	placement: 3,
 	radius: 2.5,
+
+	maxPlacement: 3,
 
 	element: "Test",
 	terrain: "Ground",

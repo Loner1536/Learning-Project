@@ -10,12 +10,8 @@ type Sourceify<T> = {
 	[K in keyof T]: Source<T[K]>;
 };
 
-export type PlayerData = Sourceify<States.PlayerData>;
+export type PlayerData = Sourceify<States.Player.Data>;
 export type WaveData = Sourceify<States.WaveData>;
-
-export type TopMenu = {
-	visible: Source<boolean>;
-};
 
 type InterfaceProps = {
 	sim: Core;
@@ -24,8 +20,6 @@ type InterfaceProps = {
 	waveData: WaveData;
 
 	network: typeof Network;
-
-	topMenu: TopMenu;
 };
 
 export default InterfaceProps;

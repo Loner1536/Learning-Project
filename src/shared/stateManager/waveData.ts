@@ -15,7 +15,7 @@ export default class WaveData {
 	private state = states.waveData;
 
 	public getState() {
-		return this.state();
+		return this.state;
 	}
 
 	public getProps() {
@@ -23,18 +23,7 @@ export default class WaveData {
 			return warn("[WaveData] getProps should only be called on the client");
 		}
 
-		return {
-			id: useAtom(() => this.state().id ?? "test"), // TODO: in the future make this get the whole config
-			type: useAtom(() => this.state().type ?? "normal"),
-			hpStocks: useAtom(() => this.state().hpStocks ?? 0),
-			vote: useAtom(() => this.state().vote ?? false),
-			votes: useAtom(() => this.state().votes ?? 0),
-			gameSpeed: useAtom(() => this.state().gameSpeed ?? 1),
-			wave: useAtom(() => this.state().wave ?? 0),
-			act: useAtom(() => this.state().act ?? 0),
-
-			enemies: useAtom(() => this.state().enemies ?? []),
-		};
+		return {};
 	}
 
 	public update(updater: (data: Types.Network.States.WaveData) => Types.Network.States.WaveData) {
@@ -43,6 +32,8 @@ export default class WaveData {
 		}
 
 		this.state((state) => {
+			if (!state) return state;
+
 			const newState = Object.deepCopy(state);
 			return updater(newState);
 		});

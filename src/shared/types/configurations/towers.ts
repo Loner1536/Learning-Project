@@ -5,7 +5,7 @@ import type { Unit } from "./categories";
 export namespace Types {
 	export type Elements = "Test";
 
-	export type Terrain = "Ground" | "Air" | "Hybrid";
+	export type Terrain = "Ground" | "Hill" | "Hybrid";
 
 	export type Attack = "Circle" | "Line" | "Cone" | "Full";
 }
@@ -22,6 +22,9 @@ export type Config = {
 	sellable?: boolean;
 	placement: number;
 	radius: number;
+
+	maxPlacement: number;
+	skin?: string;
 
 	element: Types.Elements;
 	terrain: Types.Terrain;

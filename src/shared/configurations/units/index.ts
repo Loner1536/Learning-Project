@@ -1,8 +1,8 @@
 // Units
-import test from "./test";
+import itadori from "./itadori";
 
 const unitConfigurations = {
-	Test: test,
+	Itadori: itadori,
 };
 
 export default unitConfigurations;

@@ -1,15 +1,16 @@
 // Packages
-import { u8, u32 } from "@rbxts/serio";
+import { type u8, type u32 } from "@rbxts/serio";
 
 // Types
-import { Traits } from "../../../configurations";
+import { type Config } from "@shared/types/configurations/towers";
+import { type Traits } from "../../../configurations";
 
 // Configurations
 import unitConfigurations from "@shared/configurations/units";
 
 type UnitsIds = keyof typeof unitConfigurations;
 
-export type Unit = {
+export type Data = {
 	id: UnitsIds;
 	uuid: string;
 	obtainedAt: u32;
@@ -35,3 +36,5 @@ export type Unit = {
 		spa: u32;
 	};
 };
+
+export type WithConfig = Data & Config;

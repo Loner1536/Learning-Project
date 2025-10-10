@@ -2,11 +2,20 @@
 import { u8 } from "@rbxts/serio";
 
 // Types
-import type { Unit } from "./units";
+import { type Data as UnitData, WithConfig as UnitWithConfig } from "./units";
 
-export type PlayerData = {
+export * as Units from "./units";
+
+export type Data = {
 	gems: u8;
 
 	team: string[];
-	units: Unit[];
+	units: UnitData[];
+};
+
+export type WithConfigs = {
+	gems: u8;
+
+	team: string[];
+	units: UnitWithConfig[];
 };
