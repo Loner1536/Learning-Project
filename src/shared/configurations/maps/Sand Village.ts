@@ -1,14 +1,14 @@
 // Types
 import type * as Types from "@shared/types";
 
-export const Enemies: Types.Core.Map.EnemyTemplate[] = [
+export const Enemies: Types.Core.GameState.EnemyConfig[] = [
 	{ id: "base", health: 10, speed: 3 },
 	{ id: "runner", health: 8, speed: 5 },
 	{ id: "heavy", health: 40, speed: 1.5 },
 	{ id: "boss", health: 2000, speed: 1.2, boss: true },
 ];
 
-const SandVillage: Types.Core.Map.Mission = {
+const SandVillage: Types.Core.GameState.Mission = {
 	id: "Sand Village",
 	enemies: Enemies,
 	waves: [

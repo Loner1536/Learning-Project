@@ -14,10 +14,16 @@ export type PlayerData = Sourceify<States.Player.Data>;
 export type WaveData = Sourceify<States.WaveData>;
 
 type InterfaceProps = {
-	sim: Core;
+	player: Player;
+
+	core: Core;
 
 	playerData: PlayerData;
 	waveData: WaveData;
+
+	vote: {
+		visible: Source<boolean>;
+	};
 
 	network: typeof Network;
 };

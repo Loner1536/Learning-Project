@@ -23,7 +23,10 @@ export default class WaveData {
 			return warn("[WaveData] getProps should only be called on the client");
 		}
 
-		return {};
+		return {
+			currentWave: useAtom(() => this.state()?.currentWave ?? 0),
+			canVote: useAtom(() => this.state()?.canVote ?? false),
+		};
 	}
 
 	public update(updater: (data: Types.Network.States.WaveData) => Types.Network.States.WaveData) {

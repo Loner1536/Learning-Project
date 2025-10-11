@@ -26,7 +26,7 @@ export default class JabbyProfiler {
 		this.scheduler = scheduler.create();
 
 		register({
-			name: `${this.label}:scheduler`,
+			name: `${this.label}`,
 			applet: applets.scheduler!,
 			configuration: { scheduler: this.scheduler! },
 		});

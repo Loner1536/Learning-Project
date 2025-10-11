@@ -7,7 +7,10 @@ import type * as Types from "@shared/types";
 const states = {
 	players: atom<Map<string, Types.Network.States.Player.Data>>(new Map()),
 
-	waveData: atom<Types.Network.States.WaveData>(),
+	waveData: atom<Types.Network.States.WaveData>({
+		currentWave: 0,
+		canVote: false,
+	}),
 };
 
 export default states;

@@ -16,17 +16,30 @@ export default class NetworkManager implements OnStart {
 	private C: Components;
 
 	constructor(private jecManager: JecsManager) {
-		this.world = this.jecManager.sim.world;
+		this.world = this.jecManager.core.world;
 
-		this.C = this.jecManager.sim.C;
+		this.C = this.jecManager.core.C;
 	}
 
 	onStart() {
 		this.setupNetworks();
 	}
 
-	private setupNetworks() {}
+	private setupNetworks() {
+		this.Wave(this.world, this.C);
+	}
 
-	private Wave(world: World, C: Components) {}
+	private Wave(world: World, C: Components) {
+		Network.server.setCallback(Network.keys.wave.vote, Network.keys.wave.voteReturn, (player: Player) => {
+			for (const [e, userId] of world.query(C.Player.UserId).with(C.Tags.Player)) {
+				if (player.UserId === userId && !world.get(e, C.Player.Voted)) {
+					world.set(e, C.Player.Voted, true);
+					return true;
+				}
+			}
+
+			return false;
+		});
+	}
 	private Tower(world: World, C: Components) {}
 }

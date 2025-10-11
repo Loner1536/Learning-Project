@@ -4,13 +4,12 @@ import Network from "@shared/network";
 
 // Components
 import replicator from "@client/replicator";
-import getSim from "@shared/ecs";
+import getCore from "@shared/ecs";
 
 @Service()
 export default class JecsManager implements OnStart {
-	public sim = getSim();
+	public core = getCore();
 
-	// TODO: Find out how to serialize
 	onStart() {
 		Network.server.invoke(Network.keys.jecs.receiveFull, Network.keys.jecs.receiveFullReturn).then((data) => {
 			if (!data) return;

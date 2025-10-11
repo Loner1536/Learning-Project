@@ -1,11 +1,11 @@
 // Components
 import Core from "./core";
 
-let simSingleton: Core | undefined;
+let core: Core | undefined;
 
-export default function getSim(): Core {
-	if (!simSingleton) {
-		simSingleton = new Core();
+export default function getCore(): Core {
+	if (!core) {
+		core = new Core();
 	}
-	return simSingleton;
+	return core;
 }

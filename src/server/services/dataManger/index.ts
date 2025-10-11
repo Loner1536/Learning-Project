@@ -13,7 +13,7 @@ import safePlayerAdded from "@shared/utility/safePlayerAdded";
 
 // Components
 import template from "./template";
-import getSim from "@shared/ecs";
+import getCore from "@shared/ecs";
 import schema from "./schema";
 
 @Service()
@@ -26,7 +26,7 @@ export default class DataManager implements OnInit {
 		memoryStoreService: new MockMemoryStoreService(),
 		changedCallbacks: [
 			(userId, newData, _oldData) => {
-				this.sim.StateManager.playerData.update(tostring(userId), (data) => ({
+				this.core.StateManager.playerData.update(tostring(userId), (data) => ({
 					...data,
 					...newData,
 				}));
@@ -57,17 +57,17 @@ export default class DataManager implements OnInit {
 		// importLegacyData: (key: string) => { /* ... */ },
 	});
 
-	private sim = getSim();
+	private core = getCore();
 
 	onInit(): void {
 		safePlayerAdded(async (player) => {
 			try {
 				await this.store.loadAsync(player);
 
-				this.sim.StateManager.playerData.set(tostring(player.UserId), await this.store.get(player));
+				this.core.StateManager.playerData.set(tostring(player.UserId), await this.store.get(player));
 
 				Promise.fromEvent(Players.PlayerRemoving, (left) => player === left)
-					.then(() => this.sim.StateManager.playerData.delete(tostring(player.UserId)))
+					.then(() => this.core.StateManager.playerData.delete(tostring(player.UserId)))
 					.then(() => this.store.unloadAsync(player));
 			} catch (error) {
 				this.handlePlayerDataError(player, error);

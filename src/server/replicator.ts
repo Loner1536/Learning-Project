@@ -2,9 +2,9 @@
 import Replecs from "@rbxts/replecs";
 
 // Components
-import getSim from "@shared/ecs";
+import getCore from "@shared/ecs";
 
-const replicator = Replecs.create_server(getSim().world);
+const replicator = Replecs.create_server(getCore().world);
 
 replicator.init();
 

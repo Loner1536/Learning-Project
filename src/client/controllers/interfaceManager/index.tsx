@@ -52,17 +52,26 @@ export default class InterfaceManager implements OnStart {
 	}
 
 	public buildProps(player: Player) {
-		const playerData = this.jecsManager.sim.StateManager.playerData.getProps(player);
-		if (!playerData) return warn("couldn't get player data for interface manager");
+		const playerData = this.jecsManager.core.StateManager.playerData.getProps(player);
+		if (!playerData) error("couldn't get player data for interface manager");
 
-		const waveData = this.jecsManager.sim.StateManager.waveData.getProps();
-		if (!waveData) return warn("couldn't get wave data for interface manager");
+		const waveData = this.jecsManager.core.StateManager.waveData.getProps();
+		if (!waveData) error("couldn't get wave data for interface manager");
+
+		const waveDataAtom = this.jecsManager.core.StateManager.waveData.getState();
+		if (!waveDataAtom) error("couldn't get wave data atom for interface manager");
 
 		return {
-			sim: this.jecsManager.sim,
+			player: Players.LocalPlayer,
+
+			core: this.jecsManager.core,
 
 			playerData: playerData,
 			waveData: waveData,
+
+			vote: {
+				visible: useAtom(() => waveDataAtom().canVote),
+			},
 
 			network: Network,
 		} satisfies Types.InterfaceProps.default;

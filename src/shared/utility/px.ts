@@ -110,8 +110,8 @@ function pxSpring<T extends Vide.Animatable>(
 		useNumber: (n: number) => number;
 		useUDim: (n: number) => UDim;
 		useUDim2: {
-			(a: number, b: number): UDim2;
-			(a: number, b: number, c: number, d?: number): UDim2;
+			(xScale: number, yScale: number): UDim2;
+			(xScale: number, xOffset: number, yScale: number, yOffset?: number): UDim2;
 		};
 	}) => T,
 	speed?: number,
