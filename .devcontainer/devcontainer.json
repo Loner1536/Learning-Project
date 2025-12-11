@@ -1,10 +1,10 @@
 {
-	"name": "Change-Name-Template",
+	"name": "Learning-Project",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
-	"postCreateCommand": "rokit install --no-trust-check",
+	"postCreateCommand": "rokit install --no-trust-check && bun install --force",
 	"shutdownAction": "stopContainer",
 	"updateRemoteUserUID": false,
 	"overrideCommand": true,

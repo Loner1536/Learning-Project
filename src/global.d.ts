@@ -3,7 +3,7 @@ import type Types from "@shared/types";
 
 declare global {
 	type AppGroups = readonly [];
-	type AppNames = readonly [];
+	type AppNames = readonly ["BottomButtons"];
 	type AppProps = {
 		player: Player;
 

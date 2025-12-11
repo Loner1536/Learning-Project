@@ -1,5 +1,5 @@
 // Packages
-import { CreateVideForge, RenderVide, type NameProps } from "@rbxts/app-forge";
+import { CreateVideForge, RenderVide, type NameProps, type VideProps } from "@rbxts/app-forge";
 import { Flamework } from "@flamework/core";
 import Vide from "@rbxts/vide";
 
@@ -33,7 +33,6 @@ export default function Setup<T extends InferProps<{}>>(setupProps: SetupProps<T
 	const appController = new AppController(coreController);
 
 	const props = appController.createProps(mockedPlayer);
-	const target = storyProps.target;
 
 	const { S } = coreController;
 
@@ -41,11 +40,17 @@ export default function Setup<T extends InferProps<{}>>(setupProps: SetupProps<T
 
 	const forge = new CreateVideForge();
 
-	task.defer(() => callback(props, forge));
+	// if its vide dont use `task.defer` but if REACT use `task.defer`
+	callback(props, forge);
 
 	const appNames = name ? name : names;
+	const config: VideProps["config"] = {
+		px: {
+			target: storyProps.target,
+		},
+	};
 
-	const mainProps = { props, forge, target, appNames };
+	const mainProps = { props, forge, config, appNames };
 
 	return <RenderVide {...mainProps} />;
 }
