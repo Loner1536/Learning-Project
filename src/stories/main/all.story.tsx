@@ -18,7 +18,7 @@ const story = CreateVideStory(
 		<Setup
 			storyProps={storyProps}
 			callback={(_, forge) => {
-				forge.set("BottomButtons", storyProps.controls.visible);
+				forge.bind("BottomButtons", storyProps.controls.visible);
 			}}
 		/>
 	),

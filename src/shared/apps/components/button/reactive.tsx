@@ -39,24 +39,34 @@ export function ReactiveButton({ properties, reactive, events, children }: React
 
 	const multi = source(options.idle);
 
+	const isVisible = () => multi() !== 0;
+
 	const defEvents: Vide.InstanceEventCallbacks<TextButton> = {
 		MouseEnter: () => {
+			if (!isVisible()) return;
+
 			isHover(true);
 
 			multi(options.hover);
 		},
 		MouseLeave: () => {
+			if (!isVisible()) return;
+
 			isHover(false);
 			isPress(false);
 
 			multi(options.idle);
 		},
 		MouseButton1Down: () => {
+			if (!isVisible()) return;
+
 			isPress(true);
 
 			multi(options.press);
 		},
 		MouseButton1Up: () => {
+			if (!isVisible()) return;
+
 			isPress(false);
 
 			multi(isHover() ? options.hover : options.idle);

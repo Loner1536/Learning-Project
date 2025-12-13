@@ -40,7 +40,6 @@ export default function Setup<T extends InferProps<{}>>(setupProps: SetupProps<T
 
 	const forge = new CreateVideForge();
 
-	// if its vide dont use `task.defer` but if REACT use `task.defer`
 	callback(props, forge);
 
 	const appNames = name ? name : names;
