@@ -33,7 +33,8 @@
 		"paths": {
 			"@shared/*": ["shared/*"],
 			"@client/*": ["client/*"],
-			"@server/*": ["server/*"]
+			"@server/*": ["server/*"],
+			"@stories/*": ["stories/*"]
 		}
 	},
 	"include": ["src"]
