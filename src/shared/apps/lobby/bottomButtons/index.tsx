@@ -6,7 +6,14 @@ import { useSpring } from "@rbxts/loners-pretty-vide-utils";
 // Components
 import CategoryButton from "./categoryButton";
 
-@VideApp({ name: "BottomButtons", renderGroup: "Lobby", visible: true })
+@VideApp({
+	name: "BottomButtons",
+	renderGroup: "Lobby",
+	visible: true,
+	rules: {
+		index: 10,
+	},
+})
 export class BottomButtons extends VideArgs {
 	public render() {
 		const { px } = this.props;
@@ -21,7 +28,7 @@ export class BottomButtons extends VideArgs {
 				AnchorPoint={new Vector2(0.5, 1)}
 				Position={useSpring(
 					() => {
-						return new UDim2(0.5, 0, 1, this.source() ? 0 : px(300));
+						return new UDim2(0.5, 0, 1, this.source() ? 0 : px(250));
 					},
 					{ frequency: 0.4, damping: 0.8 },
 				)}
@@ -30,15 +37,22 @@ export class BottomButtons extends VideArgs {
 				<Provider context={VideContexts.App} value={this.props}>
 					{() => (
 						<>
-							<CategoryButton onRelease={() => selected(!selected())} />
+							<CategoryButton onRelease={() => selected(!selected())} order={1} />
 
 							<CategoryButton
 								onRelease={() => this.forge.toggle("Inventory")}
 								selected={selected}
 								delayOut={0.1}
 								delayIn={0.05}
+								order={2}
 							/>
-							<CategoryButton selected={selected} delayOut={0.05} delayIn={0.1} />
+							<CategoryButton
+								onRelease={() => this.forge.toggle("Settings")}
+								selected={selected}
+								delayOut={0.05}
+								delayIn={0.1}
+								order={3}
+							/>
 						</>
 					)}
 				</Provider>

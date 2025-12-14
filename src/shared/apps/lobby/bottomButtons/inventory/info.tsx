@@ -16,15 +16,17 @@ export class InventoryInfo extends VideArgs {
 
 		return (
 			<frame
-				Name={"Inventory"}
-				BackgroundColor3={Color3.fromRGB(60, 60, 60)}
+				Name={"InventoryInfo"}
+				BackgroundColor3={Color3.fromRGB(50, 50, 50)}
 				AnchorPoint={new Vector2(0, 0.5)}
-				Position={useSpring(() => new UDim2(1, this.source() ? px(5) : -px(200), 0.5, 0), {
+				Position={useSpring(() => new UDim2(1, this.source() ? px(5) : -px(250), 0.5, 0), {
 					frequency: 0.4,
 					damping: 0.8,
 				})}
-				Size={() => UDim2.fromOffset(px(200), px(400))}
-			/>
+				Size={() => new UDim2(0, px(250), 1 - 0.1, 0)}
+			>
+				<uicorner CornerRadius={() => new UDim(0, px(20))} />
+			</frame>
 		);
 	}
 }

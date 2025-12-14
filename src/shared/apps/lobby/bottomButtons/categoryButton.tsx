@@ -8,6 +8,7 @@ import { ReactiveButton } from "../../components/button";
 
 type ButtonProps = {
 	selected?: Vide.Source<boolean>;
+	order?: number;
 
 	delayOut?: number;
 	delayIn?: number;
@@ -17,6 +18,7 @@ type ButtonProps = {
 
 export default function CategoryButton({
 	selected,
+	order = 1,
 	delayOut = 0,
 	delayIn = 0,
 	onRelease,
@@ -75,6 +77,7 @@ export default function CategoryButton({
 						damping: 0.5,
 					}),
 					Visible: visible,
+					LayoutOrder: order,
 				};
 			}}
 			events={{

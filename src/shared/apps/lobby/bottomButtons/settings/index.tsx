@@ -7,27 +7,27 @@ import Vide from "@rbxts/vide";
 import { ReactiveButton } from "@shared/apps/components/button";
 
 @VideApp({
-	name: "Inventory",
+	name: "Settings",
 	renderGroup: "Lobby",
 	rules: {
 		exclusiveGroup: "Window",
 		index: 2,
 	},
 })
-export class Inventory extends VideArgs {
+export class Settings extends VideArgs {
 	public render() {
 		const { px } = this.props;
 
 		return (
 			<frame
-				Name={"Inventory"}
-				BackgroundColor3={Color3.fromRGB(40, 40, 40)}
+				Name={"Settings"}
+				BackgroundColor3={Color3.fromRGB(100, 100, 100)}
 				AnchorPoint={new Vector2(0.5, 0.5)}
 				Position={useSpring(() => new UDim2(0.5, 0, 0.5, this.source() ? 0 : px(1000)), {
 					frequency: 0.4,
 					damping: 0.8,
 				})}
-				Size={() => UDim2.fromOffset(px(1000), px(700))}
+				Size={() => UDim2.fromOffset(px(500), px(650))}
 			>
 				<ReactiveButton
 					properties={(multi) => {
