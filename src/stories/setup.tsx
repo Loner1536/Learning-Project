@@ -65,6 +65,8 @@ export default function Setup<T extends InferProps<{}>>(setupProps: SetupProps<T
 		},
 	};
 
+	forge.debug.enable("state");
+
 	const defProps: VideProps = { props, forge, config };
 	const render = buildRender({ name, names, group });
 
